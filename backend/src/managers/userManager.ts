@@ -27,7 +27,6 @@ export class UserManager {
     this.users = this.users.filter((x) => x.socket.id !== socketId);
     this.queue = this.queue.filter((x) => x !== socketId);
     console.log("a user disconnected");
-    
   }
   clearQueue() {
     if (this.queue.length < 2) {
@@ -47,18 +46,31 @@ export class UserManager {
   }
 
   initHandlers(socket: Socket) {
-    socket.on("offer", ({ roomId, sdp }: { roomId: string; sdp: string }) => {
-      this.roomManager.onOffer(roomId, sdp, socket.id);
-      console.log("offer received..");
-    });
+    socket.on(
+      "offer",
+      ({
+        roomId,
+        sdp,
+        name,
+      }: {
+        roomId: string;
+        sdp: string;
+        name: string;
+      }) => {
+        this.roomManager.onOffer(roomId, sdp, socket.id, name);
+        console.log("offer received from", name);
+      }
+    );
 
     socket.on("answer", ({ roomId, sdp }: { roomId: string; sdp: string }) => {
       this.roomManager.onAnswer(roomId, sdp, socket.id);
       console.log("answer received..");
+      
     });
 
     socket.on("add-ice-candidate", ({ roomId, candidate, type }) => {
       this.roomManager.onIceCandidate(roomId, socket.id, candidate, type);
+      console.log("got ice candidate of", type);
     });
   }
 }

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
 import { io, type Socket } from "socket.io-client";
 
 const Room = ({
@@ -11,11 +10,10 @@ const Room = ({
   localAudioTrack: MediaStreamTrack | null;
   localVideoTrack: MediaStreamTrack | null;
 }) => {
-  const [params, setParams] = useSearchParams();
   const URL = "http://localhost:8000";
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
-
+  const [peerName, setPeerName] = useState<string>("");
   const [socket, setsocket] = useState<null | Socket>(null);
   const [lobby, setLobby] = useState(true);
   const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null);
@@ -29,7 +27,7 @@ const Room = ({
     socket.on("send-offer", async ({ roomId }) => {
       const pc = new RTCPeerConnection();
 
-      console.log("Send offer please..");
+      console.log("Sending offer..");
       setLobby(false);
 
       setSendingPc(pc);
@@ -48,6 +46,7 @@ const Room = ({
         socket.emit("offer", {
           sdp: offer.sdp,
           roomId,
+          name,
         });
       };
 
@@ -61,8 +60,9 @@ const Room = ({
         }
       };
     });
-    socket.on("offer", async ({ roomId, sdp }) => {
+    socket.on("offer", async ({ roomId, sdp, name }) => {
       const pc = new RTCPeerConnection();
+      setPeerName(name);
 
       console.log("Send answer please..");
       setLobby(false);
@@ -78,16 +78,15 @@ const Room = ({
         console.log(e.track);
         remoteStream.addTrack(e.track);
 
-
         // if (e.track.kind == "video") {
-        //   //   remoteVideoRef.current &&
-        //   //     (remoteVideoRef.current.srcObject = new MediaStream([e.track]));
-        //   remoteStream.addTrack(e.track);
+        //   remoteVideoRef.current &&
+        //     (remoteVideoRef.current.srcObject = new MediaStream([e.track]));
+        // //   remoteStream.addTrack(e.track);
         // }
         // if (e.track.kind == "audio") {
-        // //   remoteVideoRef.current &&
-        // //     (remoteVideoRef?.current?.srcObject?.addTrack(e.track));
-        // remoteStream.addTrack(e.track);
+        //   remoteVideoRef.current &&
+        //     (remoteVideoRef.current.srcObject = new MediaStream([e.track]));
+        // //   remoteStream.addTrack(e.track);
         // }
       };
 
@@ -124,7 +123,8 @@ const Room = ({
     
 
     socket.on("add-ice-candidate", ({ candidate, type }) => {
-      console.log(type);
+
+      console.log("on add-ace-candidate");
 
       if (type == "sender") {
         setReceivingPc((pc) => {
@@ -155,22 +155,26 @@ const Room = ({
 
   return (
     <div>
-      Hi {name}
-      <video
-        id="local"
-        autoPlay
-        height={400}
-        ref={videoRef}
-        width={400}
-      ></video>
       {lobby ? <div>Waiting to connect to someone..</div> : null}
       <video
+        className=""
         id="remote"
         autoPlay
         height={400}
         width={400}
         ref={remoteVideoRef}
       ></video>
+
+      <div>
+        <video
+        
+          id="local"
+          autoPlay
+          height={400}
+          ref={videoRef}
+          width={400}
+        ></video>
+      </div>
     </div>
   );
 };
