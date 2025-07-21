@@ -23,10 +23,8 @@ const Room = ({
     null
   );
 
-  const [ muteAudio, setMuteAudio] = useState(false)
+  const [muteAudio, setMuteAudio] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
-
-
 
   useEffect(() => {
     const socket = io(URL);
@@ -118,7 +116,7 @@ const Room = ({
         roomId,
       });
     });
-    socket.on("answer", ({ roomId, sdp }) => {
+    socket.on("answer", ({  sdp }) => {
       setLobby(false);
       setSendingPc((pc) => {
         pc?.setRemoteDescription({ sdp, type: "answer" });
@@ -177,12 +175,16 @@ const Room = ({
         </div>
 
         <div className="  flex justify-between flex-col gap-4 px-2">
-          <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full p-2">
+          <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full px-2">
             <button
               onClick={() => {
                 setMuteAudio(!muteAudio);
               }}
-              className={`rounded-full ${muteAudio ? "bg-red-800/20" : "bg-green-400/70"}  flex justify-center p-4 cursor-pointer`}
+              className={`rounded-full ${
+                muteAudio
+                  ? "bg-red-800/20 hover:bg-red-800/30"
+                  : "bg-green-400/70 hover:bg-green-400/60"
+              }  flex justify-center p-4 cursor-pointer`}
             >
               {muteAudio ? <MicOff /> : <Mic className=" " />}
             </button>
@@ -191,28 +193,30 @@ const Room = ({
                 setMuteVideo(!muteVideo);
               }}
               className={`rounded-full  ${
-                muteVideo ? "bg-red-800/20" : "bg-green-400/70"
+                muteVideo
+                  ? "bg-red-800/20 hover:bg-red-800/30"
+                  : "bg-green-400/70 hover:bg-green-400/60"
               }  flex justify-center p-4 cursor-pointer`}
             >
               {muteVideo ? <VideoOff /> : <Video className="" />}
             </button>
             <button
               disabled={lobby}
-              className="rounded-full hover:bg-white/10 disabled:text-black flex justify-center p-4 cursor-pointer"
+              className="rounded-full disabled:bg-white/10 disabled:cursor-not-allowed hover:bg-white/10 disabled:text-white/20 flex justify-center p-4 cursor-pointer"
             >
-              <Repeat2  />
+              <Repeat2 />
             </button>
-            <button onClick={()=>{
-              
-            }}
+            <button
+              onClick={() => {}}
               disabled={lobby}
-              className="rounded-full bg-red-800 hover:bg-red-800/80 flex justify-center p-4 cursor-pointer"
+              className="rounded-full bg-red-800 disabled:cursor-not-allowed disabled:bg-red-800/20 hover:bg-red-800/80 flex justify-center p-4 cursor-pointer"
             >
               <Phone className="rotate-[135deg] " />
             </button>
           </div>
-          <div className="w-full rounded  overflow-hidden ">
+          <div className="w-full bg-green-400 min-h-[150px]  rounded  overflow-hidden ">
             <video
+              className=""
               id="local"
               autoPlay
               height={200}
