@@ -121,9 +121,7 @@ const Room = ({
 
       console.log("Connected!");
     });
-    socket.on("lobby", () => {
-      setLobby(true);
-    });
+    
 
     socket.on("add-ice-candidate", ({ candidate, type }) => {
       console.log(type);
@@ -139,6 +137,10 @@ const Room = ({
           return pc;
         });
       }
+    });
+
+    socket.on("lobby", () => {
+      setLobby(true);
     });
 
     setsocket(socket);
