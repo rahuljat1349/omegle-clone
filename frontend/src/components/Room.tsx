@@ -1,4 +1,6 @@
+import { Mic, MicOff, Phone, Repeat2, Video, VideoOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { redirect } from "react-router-dom";
 import { io, type Socket } from "socket.io-client";
 
 const Room = ({
@@ -20,6 +22,11 @@ const Room = ({
   const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(
     null
   );
+
+  const [ muteAudio, setMuteAudio] = useState(false)
+  const [muteVideo, setMuteVideo] = useState(false);
+
+
 
   useEffect(() => {
     const socket = io(URL);
@@ -120,10 +127,8 @@ const Room = ({
 
       console.log("Connected!");
     });
-    
 
     socket.on("add-ice-candidate", ({ candidate, type }) => {
-
       console.log("on add-ace-candidate");
 
       if (type == "sender") {
@@ -154,26 +159,68 @@ const Room = ({
   }, [videoRef, localVideoTrack]);
 
   return (
-    <div>
-      {lobby ? <div>Waiting to connect to someone..</div> : null}
-      <video
-        className=""
-        id="remote"
-        autoPlay
-        height={400}
-        width={400}
-        ref={remoteVideoRef}
-      ></video>
+    <div className="container ">
+      <div className="flex justify-center w-full h-full  ">
+        <div className="min-h-[600px] bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
+          {lobby ? (
+            "Connecting you to someone.."
+          ) : (
+            <video
+              className=""
+              id="remote"
+              autoPlay
+              height={800}
+              width={800}
+              ref={remoteVideoRef}
+            ></video>
+          )}
+        </div>
 
-      <div>
-        <video
-        
-          id="local"
-          autoPlay
-          height={400}
-          ref={videoRef}
-          width={400}
-        ></video>
+        <div className="  flex justify-between flex-col gap-4 px-2">
+          <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full p-2">
+            <button
+              onClick={() => {
+                setMuteAudio(!muteAudio);
+              }}
+              className={`rounded-full ${muteAudio ? "bg-red-800/20" : "bg-green-400/70"}  flex justify-center p-4 cursor-pointer`}
+            >
+              {muteAudio ? <MicOff /> : <Mic className=" " />}
+            </button>
+            <button
+              onClick={() => {
+                setMuteVideo(!muteVideo);
+              }}
+              className={`rounded-full  ${
+                muteVideo ? "bg-red-800/20" : "bg-green-400/70"
+              }  flex justify-center p-4 cursor-pointer`}
+            >
+              {muteVideo ? <VideoOff /> : <Video className="" />}
+            </button>
+            <button
+              disabled={lobby}
+              className="rounded-full hover:bg-white/10 disabled:text-black flex justify-center p-4 cursor-pointer"
+            >
+              <Repeat2  />
+            </button>
+            <button onClick={()=>{
+              
+            }}
+              disabled={lobby}
+              className="rounded-full bg-red-800 hover:bg-red-800/80 flex justify-center p-4 cursor-pointer"
+            >
+              <Phone className="rotate-[135deg] " />
+            </button>
+          </div>
+          <div className="w-full rounded  overflow-hidden ">
+            <video
+              id="local"
+              autoPlay
+              height={200}
+              ref={videoRef}
+              width={200}
+            ></video>
+          </div>
+        </div>
       </div>
     </div>
   );
