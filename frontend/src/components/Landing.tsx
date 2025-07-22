@@ -139,18 +139,16 @@ function Landing() {
               width={600}
               ref={videoRef}
             ></video>
-            {!muteVideo && (
-              <span className="absolute shadow-2xl shadow-white text-lg px-2 font-bold text-border right-4 bottom-1">
-                You
-              </span>
-            )}
-            {muteAudio && (
-              <MicOff
-                color="white"
-             
-                className="absolute left-1 text-border  size-6  bottom-1"
-              />
-            )}
+
+            <span className="absolute flex gap-2 justify-center items-center shadow-2xl shadow-white text-lg px-2 font-bold text-border right-2 bottom-1">
+              You
+              {muteAudio && (
+                <MicOff
+                  color="white"
+                  className=" right-1 text-border  size-6  bottom-1"
+                />
+              )}
+            </span>
           </div>
           <div className=" bg-black/20 rounded p-1 gap-2 flex flex-col justify-between ">
             <div className="bg-black/10 h-full flex flex-col items-center justify-evenly">

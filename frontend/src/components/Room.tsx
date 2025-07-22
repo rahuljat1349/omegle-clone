@@ -41,14 +41,14 @@ const Room = ({
   const [peerVideoPaused, setPeerVideoPaused] = useState(false);
   const [peerAudioPaused, setPeerAudioPaused] = useState(false);
 
-  const [currentRoomId, setCurrentRoomId] = useState("")
+  const [currentRoomId, setCurrentRoomId] = useState("");
 
   useEffect(() => {
     const socket = io(URL);
 
     socket.on("send-offer", async ({ roomId }) => {
       const pc = new RTCPeerConnection();
-      setCurrentRoomId(roomId)
+      setCurrentRoomId(roomId);
       console.log("Sending offer..");
       setLobby(false);
 
@@ -125,7 +125,19 @@ const Room = ({
         sdp: answer.sdp,
         roomId,
       });
+      socket.emit("mediaStatus", {
+        status: muteAudio,
+        type: "audio",
+        roomId: roomId,
+      });
+      socket.emit("mediaStatus", {
+        status: muteVideo,
+        type: "video",
+        roomId: roomId,
+      });
+      
     });
+   
     socket.on("answer", ({ sdp }) => {
       setLobby(false);
       setSendingPc((pc) => {
@@ -134,12 +146,12 @@ const Room = ({
       });
 
       console.log("Connected!");
+      
     });
 
-   
-
     socket.on("add-ice-candidate", ({ candidate, type }) => {
-      console.log("on add-ace-candidate");
+      
+
 
       if (type == "sender") {
         setReceivingPc((pc) => {
@@ -158,16 +170,14 @@ const Room = ({
       if (type == "audio") {
         setPeerAudioPaused(status);
         console.log(peerAudioPaused);
-        
-      } 
-       if (type == "video") {
-         setPeerVideoPaused(status);
-         console.log(peerVideoPaused);
-         
-       }
+      }
+      if (type == "video") {
+        setPeerVideoPaused(status);
+        console.log(peerVideoPaused);
+      }
 
+      console.log(status, type);
       
-
     });
 
     socket.on("lobby", () => {
@@ -210,16 +220,15 @@ const Room = ({
                 width={800}
                 ref={remoteVideoRef}
               ></video>
-              <span className="absolute shadow-2xl shadow-white text-lg px-2 font-bold text-border right-4 bottom-1">
+              <span className="absolute flex justify-center items-center shadow-2xl shadow-white text-lg px-2 font-bold text-border right-2 bottom-1">
                 {peerName || "Unknown"}
+                {peerAudioPaused && (
+                  <MicOff
+                    color="white"
+                    className="  text-border  size-6  bottom-1"
+                  />
+                )}
               </span>
-              {peerAudioPaused && (
-                <MicOff
-                  color="white"
-                  
-                  className="absolute left-1 text-border  size-6  bottom-1"
-                />
-              )}
             </div>
           )}
         </div>
@@ -317,15 +326,14 @@ const Room = ({
               width={200}
             ></video>
             {!muteVideo && (
-              <span className="absolute shadow-2xl shadow-white  px-2 font-semibold text-border right-1 bottom-0">
+              <span className="absolute shadow-2xl shadow-white  px-2 font-semibold text-border right-4 bottom-0">
                 You
               </span>
             )}
             {muteAudio && (
               <MicOff
                 color="white"
-                
-                className="absolute left-1 text-border  size-4  bottom-1"
+                className="absolute right-1 text-border  size-4  bottom-1"
               />
             )}
           </div>
