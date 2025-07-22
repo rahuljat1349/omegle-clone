@@ -1,16 +1,23 @@
 import { Mic, MicOff, Phone, Repeat2, Video, VideoOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { redirect } from "react-router-dom";
 import { io, type Socket } from "socket.io-client";
 
 const Room = ({
   name,
   localAudioTrack,
   localVideoTrack,
+  toggleAudio,
+  toggleVideo,
+  muteAudio,
+  muteVideo,
 }: {
   name: string;
   localAudioTrack: MediaStreamTrack | null;
   localVideoTrack: MediaStreamTrack | null;
+  toggleAudio: () => void;
+  toggleVideo: () => void;
+  muteAudio: boolean;
+  muteVideo: boolean;
 }) => {
   const URL = "http://localhost:8000";
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -22,9 +29,6 @@ const Room = ({
   const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(
     null
   );
-
-  const [muteAudio, setMuteAudio] = useState(false);
-  const [muteVideo, setMuteVideo] = useState(false);
 
   useEffect(() => {
     const socket = io(URL);
@@ -141,27 +145,7 @@ const Room = ({
 
     setsocket(socket);
   }, [name]);
-  const toggleVideo = () => {
-    if (localVideoTrack) {
-      localVideoTrack.enabled = !localVideoTrack.enabled;
-      setMuteVideo(!localVideoTrack.enabled);
-    }
 
-    if (videoRef.current) {
-      videoRef.current.srcObject = !localVideoTrack?.enabled
-        ? null
-        : new MediaStream([localVideoTrack]);
-      localVideoTrack?.enabled
-        ? videoRef.current.play()
-        : videoRef.current.pause();
-    }
-  };
-  const toggleAudio = () => {
-    if (localAudioTrack) {
-      localAudioTrack.enabled = !localAudioTrack.enabled;
-      setMuteAudio(!localAudioTrack.enabled);
-    }
-  };
   useEffect(() => {
     if (videoRef.current && localVideoTrack) {
       videoRef.current.srcObject = new MediaStream([localVideoTrack]);
