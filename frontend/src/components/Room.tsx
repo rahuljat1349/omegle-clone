@@ -141,7 +141,27 @@ const Room = ({
 
     setsocket(socket);
   }, [name]);
+  const toggleVideo = () => {
+    if (localVideoTrack) {
+      localVideoTrack.enabled = !localVideoTrack.enabled;
+      setMuteVideo(!localVideoTrack.enabled);
+    }
 
+    if (videoRef.current) {
+      videoRef.current.srcObject = !localVideoTrack?.enabled
+        ? null
+        : new MediaStream([localVideoTrack]);
+      localVideoTrack?.enabled
+        ? videoRef.current.play()
+        : videoRef.current.pause();
+    }
+  };
+  const toggleAudio = () => {
+    if (localAudioTrack) {
+      localAudioTrack.enabled = !localAudioTrack.enabled;
+      setMuteAudio(!localAudioTrack.enabled);
+    }
+  };
   useEffect(() => {
     if (videoRef.current && localVideoTrack) {
       videoRef.current.srcObject = new MediaStream([localVideoTrack]);
@@ -171,7 +191,7 @@ const Room = ({
           <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full px-2">
             <button
               onClick={() => {
-                setMuteAudio(!muteAudio);
+                toggleAudio();
               }}
               className={`rounded-full ${
                 muteAudio
@@ -183,7 +203,7 @@ const Room = ({
             </button>
             <button
               onClick={() => {
-                setMuteVideo(!muteVideo);
+                toggleVideo();
               }}
               className={`rounded-full  ${
                 muteVideo
@@ -207,7 +227,7 @@ const Room = ({
               <Phone className="rotate-[135deg] " />
             </button>
           </div>
-          <div className="w-full min-h-[150px] rounded overflow-hidden">
+          <div className="w-full min-h-[150px] bg-black rounded overflow-hidden">
             <video
               className=""
               id="local"
