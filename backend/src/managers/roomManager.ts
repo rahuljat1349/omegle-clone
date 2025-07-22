@@ -23,7 +23,7 @@ export class RoomManager {
     });
   }
 
-  onOffer(roomId: string, sdp: string, senderSocketId: string, name:string) {
+  onOffer(roomId: string, sdp: string, senderSocketId: string, name: string) {
     const room = this.rooms.get(roomId);
     if (!room) {
       return;
@@ -56,7 +56,25 @@ export class RoomManager {
     const receivingUser =
       room?.user1.socket.id === senderSocketId ? room.user2 : room?.user1;
     receivingUser.socket.emit("add-ice-candidate", { candidate, type });
+  }
+
+  onMediaStatus(
+    roomId : string,
+    status: boolean,
+    type: "audio" | "video",
+    senderSocketId: string
+  ) {
+   
+    const room = this.rooms.get(roomId);
+
     
+
+    if (!room) {
+      return;
+    }
+    const receivingUser =
+      room?.user1.socket.id === senderSocketId ? room.user2 : room?.user1;
+    receivingUser.socket.emit("mediaStatus", { status, type });
   }
 
   generate() {

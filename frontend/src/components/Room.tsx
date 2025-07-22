@@ -38,13 +38,17 @@ const Room = ({
   const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(
     null
   );
+  const [peerVideoPaused, setPeerVideoPaused] = useState(false);
+  const [peerAudioPaused, setPeerAudioPaused] = useState(false);
+
+  const [currentRoomId, setCurrentRoomId] = useState("")
 
   useEffect(() => {
     const socket = io(URL);
 
     socket.on("send-offer", async ({ roomId }) => {
       const pc = new RTCPeerConnection();
-
+      setCurrentRoomId(roomId)
       console.log("Sending offer..");
       setLobby(false);
 
@@ -132,6 +136,8 @@ const Room = ({
       console.log("Connected!");
     });
 
+   
+
     socket.on("add-ice-candidate", ({ candidate, type }) => {
       console.log("on add-ace-candidate");
 
@@ -148,11 +154,31 @@ const Room = ({
       }
     });
 
+    socket.on("mediaStatus", ({ status, type }) => {
+      if (type == "audio") {
+        setPeerAudioPaused(status);
+        console.log(peerAudioPaused);
+        
+      } 
+       if (type == "video") {
+         setPeerVideoPaused(status);
+         console.log(peerVideoPaused);
+         
+       }
+
+      
+
+    });
+
     socket.on("lobby", () => {
       setLobby(true);
     });
 
     setsocket(socket);
+
+    return () => {
+      socket.close();
+    };
   }, [name]);
 
   useEffect(() => {
@@ -165,18 +191,36 @@ const Room = ({
   return (
     <div className="container ">
       <div className="flex justify-center w-full h-full  ">
-        <div className="min-h-[600px] bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
+        <div className="min-h-[600px] relative bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
           {lobby ? (
-            "Connecting you to someone.."
+            "waiting to connect.."
           ) : (
-            <video
-              className=""
-              id="remote"
-              autoPlay
-              height={800}
-              width={800}
-              ref={remoteVideoRef}
-            ></video>
+            <div>
+              {peerVideoPaused && (
+                <div className="w-full h-full bg-black/40 flex justify-center items-center flex-col">
+                  <VideoOff size={56} />
+                  <span>Camera is off</span>
+                </div>
+              )}
+              <video
+                className={`${peerVideoPaused && "hidden"}`}
+                id="remote"
+                autoPlay
+                height={800}
+                width={800}
+                ref={remoteVideoRef}
+              ></video>
+              <span className="absolute shadow-2xl shadow-white text-lg px-2 font-bold text-border right-4 bottom-1">
+                {peerName || "Unknown"}
+              </span>
+              {peerAudioPaused && (
+                <MicOff
+                  color="white"
+                  
+                  className="absolute left-1 text-border  size-6  bottom-1"
+                />
+              )}
+            </div>
           )}
         </div>
 
@@ -190,6 +234,11 @@ const Room = ({
               <button
                 onClick={() => {
                   toggleAudio();
+                  socket?.emit("mediaStatus", {
+                    status: !muteAudio,
+                    type: "audio",
+                    roomId: currentRoomId,
+                  });
                 }}
                 className={`rounded-full ${
                   muteAudio
@@ -216,6 +265,11 @@ const Room = ({
               <button
                 onClick={() => {
                   toggleVideo();
+                  socket?.emit("mediaStatus", {
+                    status: !muteVideo,
+                    type: "video",
+                    roomId: currentRoomId,
+                  });
                 }}
                 className={`rounded-full  ${
                   muteVideo
@@ -248,7 +302,12 @@ const Room = ({
               <Phone className="rotate-[135deg] " />
             </button>
           </div>
-          <div className="w-full min-h-[150px] bg-black rounded overflow-hidden">
+          <div className="w-full relative min-h-[150px] bg-black rounded overflow-hidden">
+            {muteVideo && (
+              <div className="w-full h-full bg-black/40 flex justify-center items-center flex-col">
+                <VideoOff size={24} />
+              </div>
+            )}
             <video
               className=""
               id="local"
@@ -257,6 +316,18 @@ const Room = ({
               ref={videoRef}
               width={200}
             ></video>
+            {!muteVideo && (
+              <span className="absolute shadow-2xl shadow-white  px-2 font-semibold text-border right-1 bottom-0">
+                You
+              </span>
+            )}
+            {muteAudio && (
+              <MicOff
+                color="white"
+                
+                className="absolute left-1 text-border  size-4  bottom-1"
+              />
+            )}
           </div>
         </div>
       </div>

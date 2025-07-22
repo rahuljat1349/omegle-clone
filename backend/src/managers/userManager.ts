@@ -68,6 +68,11 @@ export class UserManager {
       
     });
 
+    socket.on("mediaStatus", ({roomId, status, type }) => {
+      this.roomManager.onMediaStatus(roomId, status, type, socket.id);
+      console.log(status, type);
+    });
+
     socket.on("add-ice-candidate", ({ roomId, candidate, type }) => {
       this.roomManager.onIceCandidate(roomId, socket.id, candidate, type);
       console.log("got ice candidate of", type);

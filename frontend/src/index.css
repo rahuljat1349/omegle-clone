@@ -1,6 +1,14 @@
 
 @import "tailwindcss";
 
+
+@layer utilities {
+  .text-border {
+    -webkit-text-stroke: .5px black; /* or any color */
+    color: white; /* Inner text fill */
+  }
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

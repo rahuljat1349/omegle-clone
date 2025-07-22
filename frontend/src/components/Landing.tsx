@@ -53,6 +53,7 @@ function Landing() {
     if (localVideoTrack) {
       localVideoTrack.enabled = !localVideoTrack.enabled;
       setMuteVideo(!localVideoTrack.enabled);
+            
     }
 
     if (videoRef.current) {
@@ -109,14 +110,47 @@ function Landing() {
       getCam();
     }
   }, []);
+  useEffect(() => {
+    const updateDevices = async () => {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      setMediaDevices(devices)
+    };
+    navigator.mediaDevices.addEventListener("devicechange", updateDevices)
+    return ()=>{
+      navigator.mediaDevices.removeEventListener("devicechange", updateDevices)
+    }
+  }, []);
 
   if (!joined) {
     return (
       <>
         <Dialogue />
         <div className="container flex   gap-4">
-          <div className="min-w-[600px] min-h-[450px] bg-black rounded overflow-hidden">
-            <video className="" height={600} width={600} ref={videoRef}></video>
+          <div className="min-w-[600px] relative min-h-[450px]  rounded overflow-hidden">
+            {muteVideo && (
+              <div className="w-full h-full bg-black/40 flex justify-center items-center flex-col">
+                <VideoOff size={56} />
+                <span>Camera is off</span>
+              </div>
+            )}
+            <video
+              className={`${muteVideo && "hidden"}`}
+              height={600}
+              width={600}
+              ref={videoRef}
+            ></video>
+            {!muteVideo && (
+              <span className="absolute shadow-2xl shadow-white text-lg px-2 font-bold text-border right-4 bottom-1">
+                You
+              </span>
+            )}
+            {muteAudio && (
+              <MicOff
+                color="white"
+             
+                className="absolute left-1 text-border  size-6  bottom-1"
+              />
+            )}
           </div>
           <div className=" bg-black/20 rounded p-1 gap-2 flex flex-col justify-between ">
             <div className="bg-black/10 h-full flex flex-col items-center justify-evenly">

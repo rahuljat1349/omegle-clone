@@ -53,6 +53,7 @@ export default function ListMenu({
                 key={idx}
                 onClick={() => {
                   selectDevice(device.deviceId, kind);
+                  // handleClose()
                 }}
                 sx={{
                   backgroundColor:
