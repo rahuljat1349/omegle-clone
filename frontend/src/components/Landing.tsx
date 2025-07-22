@@ -13,6 +13,8 @@ function Landing() {
     useState<null | MediaStreamTrack>(null);
   const [muteAudio, setMuteAudio] = useState(false);
   const [muteVideo, setMuteVideo] = useState(false);
+  const [activeAudioDeviceId, setActiveAudioDeviceId] = useState<string>("");
+  const [activeVideoDeviceId, setActiveVideoDeviceId] = useState<string>("");
 
   const [mediaDevices, setMediaDevices] = useState<MediaDeviceInfo[]>([]);
 
@@ -26,8 +28,13 @@ function Landing() {
 
     const videoTrack = await stream.getVideoTracks()[0];
     setLocalVideoTrack(videoTrack);
+    const videoDeviceId = await videoTrack.getSettings().deviceId;
+    videoDeviceId && setActiveVideoDeviceId(videoDeviceId);
+    //
     const audioTrack = await stream.getAudioTracks()[0];
     setLocalAudioTrack(audioTrack);
+    const audioDeviceId = await audioTrack.getSettings().deviceId;
+    audioDeviceId && setActiveAudioDeviceId(audioDeviceId);
 
     if (!videoRef.current) {
       return;
@@ -64,11 +71,37 @@ function Landing() {
     }
   };
 
-  const selectDevice = (
+  const selectDevice = async (
     deviceId: string,
     kind: "audioinput" | "videoinput"
   ) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: kind === "videoinput" ? { deviceId } : false,
+        audio: kind === "audioinput" ? { deviceId } : false,
+      });
 
+      const track =
+        kind == "audioinput"
+          ? stream.getAudioTracks()[0]
+          : stream.getVideoTracks()[0];
+      const activeDeviceId = await track.getSettings().deviceId;
+
+      if (kind == "audioinput") {
+        activeDeviceId && setActiveAudioDeviceId(activeDeviceId);
+        setLocalAudioTrack(track);
+      } else if (kind == "videoinput") {
+        activeDeviceId && setActiveVideoDeviceId(activeDeviceId);
+        setLocalVideoTrack(track);
+      }
+
+      if (kind == "videoinput" && videoRef.current) {
+        videoRef.current.srcObject = new MediaStream([track]);
+        videoRef.current.play();
+      }
+    } catch (error) {
+      console.log("error selecting device ", error);
+    }
   };
 
   useEffect(() => {
@@ -105,7 +138,12 @@ function Landing() {
                   {muteAudio ? <MicOff /> : <Mic className=" " />}
                 </button>
                 <div className=" flex justify-center items-center">
-                  <ListMenu kind="audioinput" mediaDevices={mediaDevices} />
+                  <ListMenu
+                    activeDeviceId={activeAudioDeviceId}
+                    selectDevice={selectDevice}
+                    kind="audioinput"
+                    mediaDevices={mediaDevices}
+                  />
                 </div>
               </div>
               <div
@@ -126,7 +164,12 @@ function Landing() {
                   {muteVideo ? <VideoOff /> : <Video className="" />}
                 </button>
                 <div className=" flex justify-center items-center">
-                  <ListMenu kind="videoinput" mediaDevices={mediaDevices} />
+                  <ListMenu
+                    activeDeviceId={activeVideoDeviceId}
+                    selectDevice={selectDevice}
+                    kind="videoinput"
+                    mediaDevices={mediaDevices}
+                  />
                 </div>
               </div>
             </div>
@@ -158,13 +201,17 @@ function Landing() {
 
   return (
     <Room
+      activeAudioDeviceId={activeAudioDeviceId}
+      activeVideoDeviceId={activeVideoDeviceId}
       name={name}
+      mediaDevices={mediaDevices}
       toggleAudio={toggleAudio}
       toggleVideo={toggleVideo}
       muteAudio={muteAudio}
       muteVideo={muteVideo}
       localAudioTrack={localAudioTrack!}
       localVideoTrack={localVideoTrack!}
+      selectDevice={selectDevice}
     />
   );
 }

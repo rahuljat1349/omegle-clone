@@ -1,8 +1,10 @@
 import { Mic, MicOff, Phone, Repeat2, Video, VideoOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
+import ListMenu from "./Menu";
 
 const Room = ({
+  mediaDevices,
   name,
   localAudioTrack,
   localVideoTrack,
@@ -10,14 +12,21 @@ const Room = ({
   toggleVideo,
   muteAudio,
   muteVideo,
+  selectDevice,
+  activeVideoDeviceId,
+  activeAudioDeviceId,
 }: {
   name: string;
+  mediaDevices: MediaDeviceInfo[];
   localAudioTrack: MediaStreamTrack | null;
   localVideoTrack: MediaStreamTrack | null;
   toggleAudio: () => void;
   toggleVideo: () => void;
+  selectDevice: (deviceId: string, kind: "audioinput" | "videoinput") => void;
   muteAudio: boolean;
   muteVideo: boolean;
+  activeVideoDeviceId: string;
+  activeAudioDeviceId: string;
 }) => {
   const URL = "http://localhost:8000";
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -173,30 +182,58 @@ const Room = ({
 
         <div className="  flex justify-between flex-col gap-2 px-2">
           <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full px-2">
-            <button
-              onClick={() => {
-                toggleAudio();
-              }}
-              className={`rounded-full ${
-                muteAudio
-                  ? "bg-red-800/20 hover:bg-red-800/30"
-                  : "bg-green-400/70 hover:bg-green-400/60"
-              }  flex justify-center p-4 cursor-pointer`}
+            <div
+              className={`flex rounded-4xl   ${
+                muteAudio ? "bg-red-800/30 " : "bg-green-400/50 "
+              } `}
             >
-              {muteAudio ? <MicOff /> : <Mic className=" " />}
-            </button>
-            <button
-              onClick={() => {
-                toggleVideo();
-              }}
-              className={`rounded-full  ${
-                muteVideo
-                  ? "bg-red-800/20 hover:bg-red-800/30"
-                  : "bg-green-400/70 hover:bg-green-400/60"
-              }  flex justify-center p-4 cursor-pointer`}
+              <button
+                onClick={() => {
+                  toggleAudio();
+                }}
+                className={`rounded-full ${
+                  muteAudio
+                    ? "bg-red-800/20 hover:bg-red-800/30"
+                    : "bg-green-400/70 hover:bg-green-400/60"
+                }  flex justify-center p-4 cursor-pointer`}
+              >
+                {muteAudio ? <MicOff /> : <Mic className=" " />}
+              </button>
+              <div className=" flex justify-center items-center">
+                <ListMenu
+                  activeDeviceId={activeAudioDeviceId}
+                  selectDevice={selectDevice}
+                  kind="audioinput"
+                  mediaDevices={mediaDevices}
+                />
+              </div>
+            </div>
+            <div
+              className={`flex rounded-4xl   ${
+                muteVideo ? "bg-red-800/30 " : "bg-green-400/50 "
+              } `}
             >
-              {muteVideo ? <VideoOff /> : <Video className="" />}
-            </button>
+              <button
+                onClick={() => {
+                  toggleVideo();
+                }}
+                className={`rounded-full  ${
+                  muteVideo
+                    ? "bg-red-800/20 hover:bg-red-800/30"
+                    : "bg-green-400/70 hover:bg-green-400/60"
+                }  flex justify-center p-4 cursor-pointer`}
+              >
+                {muteVideo ? <VideoOff /> : <Video className="" />}
+              </button>
+              <div className=" flex justify-center items-center">
+                <ListMenu
+                  activeDeviceId={activeVideoDeviceId}
+                  selectDevice={selectDevice}
+                  kind="videoinput"
+                  mediaDevices={mediaDevices}
+                />
+              </div>
+            </div>
             <button
               disabled={lobby}
               className="rounded-full disabled:bg-white/10 disabled:cursor-not-allowed hover:bg-white/10 disabled:text-white/20 flex justify-center p-4 cursor-pointer"
