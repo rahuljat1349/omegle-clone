@@ -80,19 +80,12 @@ const Room = ({
       pc.ontrack = (e) => {
         console.log("Ontrack called!");
 
-        console.log(e.track);
-        remoteStream.addTrack(e.track);
-
-        // if (e.track.kind == "video") {
-        //   remoteVideoRef.current &&
-        //     (remoteVideoRef.current.srcObject = new MediaStream([e.track]));
-        // //   remoteStream.addTrack(e.track);
-        // }
-        // if (e.track.kind == "audio") {
-        //   remoteVideoRef.current &&
-        //     (remoteVideoRef.current.srcObject = new MediaStream([e.track]));
-        // //   remoteStream.addTrack(e.track);
-        // }
+        if (e.track.kind == "video") {
+          remoteStream.addTrack(e.track);
+        }
+        if (e.track.kind == "audio") {
+          remoteStream.addTrack(e.track);
+        }
       };
 
       pc.setRemoteDescription({ sdp, type: "offer" });
@@ -116,7 +109,7 @@ const Room = ({
         roomId,
       });
     });
-    socket.on("answer", ({  sdp }) => {
+    socket.on("answer", ({ sdp }) => {
       setLobby(false);
       setSendingPc((pc) => {
         pc?.setRemoteDescription({ sdp, type: "answer" });
@@ -174,7 +167,7 @@ const Room = ({
           )}
         </div>
 
-        <div className="  flex justify-between flex-col gap-4 px-2">
+        <div className="  flex justify-between flex-col gap-2 px-2">
           <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full px-2">
             <button
               onClick={() => {
@@ -214,7 +207,7 @@ const Room = ({
               <Phone className="rotate-[135deg] " />
             </button>
           </div>
-          <div className="w-full bg-green-400 min-h-[150px]  rounded  overflow-hidden ">
+          <div className="w-full min-h-[150px] rounded overflow-hidden">
             <video
               className=""
               id="local"
