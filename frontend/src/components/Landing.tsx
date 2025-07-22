@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Room from "./Room";
 import Dialogue from "./Dialogue";
-import { Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { Loader, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import ListMenu from "./Menu";
 
 function Landing() {
@@ -19,6 +19,8 @@ function Landing() {
   const [mediaDevices, setMediaDevices] = useState<MediaDeviceInfo[]>([]);
 
   const [joined, setJoined] = useState(false);
+  const [loadingCamera, setLoadingCamera] = useState(false);
+  const [loadingMic, setLoadingMic] = useState(false);
 
   async function getCam() {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -49,26 +51,58 @@ function Landing() {
     });
   }
 
-  const toggleVideo = () => {
+  const toggleVideo = async () => {
     if (localVideoTrack) {
-      localVideoTrack.enabled = !localVideoTrack.enabled;
-      setMuteVideo(!localVideoTrack.enabled);
-            
-    }
+      localVideoTrack.stop();
+      setLocalVideoTrack(null);
+      setMuteVideo(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    } else {
+      try {
+        setLoadingCamera(true);
+        const videoTrack = (
+          await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          })
+        ).getVideoTracks()[0];
+        setLocalVideoTrack(videoTrack);
+        setMuteVideo(false);
 
-    if (videoRef.current) {
-      videoRef.current.srcObject = !localVideoTrack?.enabled
-        ? null
-        : new MediaStream([localVideoTrack]);
-      localVideoTrack?.enabled
-        ? videoRef.current.play()
-        : videoRef.current.pause();
+        if (videoRef.current) {
+          videoRef.current.srcObject = new MediaStream([videoTrack]);
+          videoRef.current.play();
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoadingCamera(false);
+      }
     }
   };
-  const toggleAudio = () => {
+  const toggleAudio = async () => {
     if (localAudioTrack) {
-      localAudioTrack.enabled = !localAudioTrack.enabled;
-      setMuteAudio(!localAudioTrack.enabled);
+      localAudioTrack.stop();
+      setLocalAudioTrack(null);
+      setMuteAudio(true);
+    } else {
+      try {
+        setLoadingMic(true);
+        const audioTrack = (
+          await navigator.mediaDevices.getUserMedia({
+            video: false,
+            audio: true,
+          })
+        ).getAudioTracks()[0];
+        setLocalAudioTrack(audioTrack);
+        setMuteAudio(false);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoadingMic(false);
+      }
     }
   };
 
@@ -91,9 +125,11 @@ function Landing() {
       if (kind == "audioinput") {
         activeDeviceId && setActiveAudioDeviceId(activeDeviceId);
         setLocalAudioTrack(track);
+        setMuteAudio(false)
       } else if (kind == "videoinput") {
         activeDeviceId && setActiveVideoDeviceId(activeDeviceId);
         setLocalVideoTrack(track);
+        setMuteVideo(false)
       }
 
       if (kind == "videoinput" && videoRef.current) {
@@ -111,14 +147,18 @@ function Landing() {
     }
   }, []);
   useEffect(() => {
+    const name = localStorage.getItem("name");
+    setName(name || "");
+  }, []);
+  useEffect(() => {
     const updateDevices = async () => {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      setMediaDevices(devices)
+      setMediaDevices(devices);
     };
-    navigator.mediaDevices.addEventListener("devicechange", updateDevices)
-    return ()=>{
-      navigator.mediaDevices.removeEventListener("devicechange", updateDevices)
-    }
+    navigator.mediaDevices.addEventListener("devicechange", updateDevices);
+    return () => {
+      navigator.mediaDevices.removeEventListener("devicechange", updateDevices);
+    };
   }, []);
 
   if (!joined) {
@@ -158,6 +198,7 @@ function Landing() {
                 } `}
               >
                 <button
+                  disabled={loadingMic}
                   onClick={() => {
                     toggleAudio();
                   }}
@@ -167,7 +208,13 @@ function Landing() {
                       : "bg-green-400/70 hover:bg-green-400/60"
                   }  flex justify-center p-4 cursor-pointer`}
                 >
-                  {muteAudio ? <MicOff /> : <Mic className=" " />}
+                  {loadingMic ? (
+                    <Loader className="animate-spin" />
+                  ) : muteAudio ? (
+                    <MicOff />
+                  ) : (
+                    <Mic className=" " />
+                  )}
                 </button>
                 <div className=" flex justify-center items-center">
                   <ListMenu
@@ -184,6 +231,7 @@ function Landing() {
                 } `}
               >
                 <button
+                  disabled={loadingCamera}
                   onClick={() => {
                     toggleVideo();
                   }}
@@ -193,7 +241,13 @@ function Landing() {
                       : "bg-green-400/70 hover:bg-green-400/60"
                   }  flex justify-center p-4 cursor-pointer`}
                 >
-                  {muteVideo ? <VideoOff /> : <Video className="" />}
+                  {loadingCamera ? (
+                    <Loader className="animate-spin" />
+                  ) : muteVideo ? (
+                    <VideoOff />
+                  ) : (
+                    <Video />
+                  )}
                 </button>
                 <div className=" flex justify-center items-center">
                   <ListMenu
@@ -210,6 +264,7 @@ function Landing() {
                 className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-3"
                 onChange={(e) => {
                   setName(e.target.value);
+                  localStorage.setItem("name", e.target.value);
                 }}
                 maxLength={12}
                 value={name}

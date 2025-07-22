@@ -220,11 +220,11 @@ const Room = ({
                 width={800}
                 ref={remoteVideoRef}
               ></video>
-              <span className="absolute flex justify-center items-center shadow-2xl shadow-white text-lg px-2 font-bold text-border right-2 bottom-1">
+              <span className="absolute flex gap-2  justify-center items-center shadow-2xl shadow-white text-lg px-2 font-bold text-border right-2 bottom-1">
                 {peerName || "Unknown"}
                 {peerAudioPaused && (
                   <MicOff
-                    color="white"
+                    color="red"
                     className="  text-border  size-6  bottom-1"
                   />
                 )}
