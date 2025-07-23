@@ -43,7 +43,7 @@ server.listen(8000, () => {
 });
 
 function startSelfPing() {
-  const interval = 1000 * 60 * 4; // Every 4 minutes
+  const interval = 1000 * 60 * 1; // Every 4 minutes
   setInterval(() => {
     https
       .get(SELF_URL || "https://vibes-sv7l.onrender.com/ping", (res) => {
