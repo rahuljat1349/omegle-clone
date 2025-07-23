@@ -45,10 +45,14 @@ server.listen(8000, () => {
 function startSelfPing() {
   const interval = 1000 * 60 * 4; // Every 4 minutes
   setInterval(() => {
-    app.get(SELF_URL, (res) => {
-      console.log(
-        `[PING] Status ${res.statusCode} at ${new Date().toISOString()}`
-      );
-    });
+    http
+      .get(SELF_URL, (res) => {
+        console.log(
+          `[PING] Status ${res.statusCode} at ${new Date().toISOString()}`
+        );
+      })
+      .on("error", (err) => {
+        console.error(`[PING ERROR] ${err.message}`);
+      });
   }, interval);
 }
