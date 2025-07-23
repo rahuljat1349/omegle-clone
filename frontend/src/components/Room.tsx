@@ -44,7 +44,7 @@ const Room = ({
   activeVideoDeviceId: string;
   activeAudioDeviceId: string;
 }) => {
-  const URL = import.meta.env.VITE_SELF_URL;
+  const URL = import.meta.env.VITE_SELF_URL || "http://localhost:8000";
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const [peerName, setPeerName] = useState<string>("");
@@ -271,7 +271,7 @@ const Room = ({
         </ComicText>
       </div>
       <div className="flex justify-center w-full z-20 h-full  ">
-        <div className="min-h-[600px] relative bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
+        <div className="min-h-[600px] relative bg-black text-white min-w-[800px] rounded overflow-hidden flex justify-center items-center">
           {hangup ? (
             "call ended."
           ) : lobby ? (
@@ -306,7 +306,7 @@ const Room = ({
         </div>
 
         <div className="flex justify-between flex-col z-20 gap-2 px-2">
-          <div className="flex flex-col bg-[#1D1D1D] rounded items-center justify-around  h-full px-2">
+          <div className="flex flex-col bg-gray-800 text-white rounded items-center justify-around  h-full px-2">
             <div
               className={`flex rounded-4xl   ${
                 muteAudio ? "bg-red-800/30 " : "bg-green-400/50 "

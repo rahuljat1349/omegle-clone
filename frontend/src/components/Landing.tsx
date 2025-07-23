@@ -225,7 +225,7 @@ function Landing() {
       <>
         <Dialogue />
         <GridPattern strokeWidth={0.3} />
-        <div className="container justify-center items-center  flex z-20 flex-col gap-4">
+        <div className="container justify-center items-center   flex z-20 flex-col gap-4">
           <ComicText className="shadow-2xl w-fit">Vibes</ComicText>
           <div className="flex">
             <div className="min-w-[600px] relative min-h-[450px]  rounded overflow-hidden">
@@ -252,7 +252,7 @@ function Landing() {
                 )}
               </span>
             </div>
-            <div className=" bg-[#1D1D1D] rounded z-20 p-1 gap-2 flex flex-col justify-between ">
+            <div className=" bg-gray-800 text-white rounded z-20 p-1 gap-2 flex flex-col justify-between ">
               <div className=" h-full flex flex-col items-center justify-evenly">
                 <div
                   className={`flex rounded-4xl   ${

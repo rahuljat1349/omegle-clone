@@ -17,7 +17,7 @@ export const Ripple = React.memo(function Ripple({
 }: RippleProps) {
   return (
     <div
-      className="pointer-events-none absolute inset-0 select-none [mask-image:linear-gradient(to_bottom,white,transparent)]"
+      className="pointer-events-none absolute text-white  inset-0 select-none [mask-image:linear-gradient(to_bottom,white,transparent)]"
       {...props}
     >
      
@@ -29,7 +29,7 @@ export const Ripple = React.memo(function Ripple({
         return (
           <div
             key={i}
-            className="absolute animate-ripple rounded-full border bg-foreground/25 shadow-xl"
+            className="absolute text-white bg-gray-600 animate-ripple rounded-full border  shadow-xl"
             style={
               {
                 "--i": i,
