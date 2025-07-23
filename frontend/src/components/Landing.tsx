@@ -126,7 +126,7 @@ function Landing() {
 
     if (!muteAudio) {
       if (localAudioTrack) {
-        localAudioTrack.enabled = true;
+        localAudioTrack.enabled = false;
       }
       setMuteAudio(true);
     } else {
@@ -136,6 +136,8 @@ function Landing() {
       setMuteAudio(false);
     }
   };
+
+  
 
   // const toggleAudio = async () => {
   //   if (localAudioTrack) {
