@@ -4,7 +4,7 @@ import https from "https";
 import cors from "cors";
 
 const server = https.createServer(app);
-const SELF_URL = process.env.SELF_URL || `http://localhost:8000/ping`;
+const SELF_URL = process.env.SELF_URL;
 import { Server } from "socket.io";
 import { UserManager } from "./managers/userManager";
 
@@ -46,7 +46,7 @@ function startSelfPing() {
   const interval = 1000 * 60 * 4; // Every 4 minutes
   setInterval(() => {
     https
-      .get(SELF_URL, (res) => {
+      .get(SELF_URL || "https://vibes-sv7l.onrender.com/ping", (res) => {
         console.log(
           `[PING] Status ${res.statusCode} at ${new Date().toISOString()}`
         );
