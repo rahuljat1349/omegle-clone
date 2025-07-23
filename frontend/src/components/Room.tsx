@@ -211,6 +211,8 @@ const Room = ({
 
     return () => {
       socket.close();
+      receivingPc?.close()
+      sendingPc?.close()
     };
   }, [connectTrigger]);
 
