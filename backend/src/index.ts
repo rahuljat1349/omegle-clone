@@ -1,9 +1,9 @@
 import express from "express";
 const app = express();
-import http from "http";
+import https from "http";
 import cors from "cors";
 
-const server = http.createServer(app);
+const server = https.createServer(app);
 const SELF_URL = process.env.SELF_URL || `http://localhost:8000/ping`;
 import { Server } from "socket.io";
 import { UserManager } from "./managers/userManager";
@@ -45,7 +45,7 @@ server.listen(8000, () => {
 function startSelfPing() {
   const interval = 1000 * 60 * 4; // Every 4 minutes
   setInterval(() => {
-    http
+    https
       .get(SELF_URL, (res) => {
         console.log(
           `[PING] Status ${res.statusCode} at ${new Date().toISOString()}`
