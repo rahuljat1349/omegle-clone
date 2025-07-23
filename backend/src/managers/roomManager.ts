@@ -59,15 +59,12 @@ export class RoomManager {
   }
 
   onMediaStatus(
-    roomId : string,
+    roomId: string,
     status: boolean,
     type: "audio" | "video",
     senderSocketId: string
   ) {
-   
     const room = this.rooms.get(roomId);
-
-    
 
     if (!room) {
       return;
@@ -75,6 +72,17 @@ export class RoomManager {
     const receivingUser =
       room?.user1.socket.id === senderSocketId ? room.user2 : room?.user1;
     receivingUser.socket.emit("mediaStatus", { status, type });
+  }
+
+  onHangup(roomId: string, senderSocketId: string) {
+    const room = this.rooms.get(roomId);
+
+    if (!room) {
+      return;
+    }
+    const receivingUser =
+      room?.user1.socket.id === senderSocketId ? room.user2 : room?.user1;
+      receivingUser.socket.emit("hangup",{})
   }
 
   generate() {

@@ -53,12 +53,12 @@ function Landing() {
 
   const toggleVideo = async () => {
     if (localVideoTrack) {
-      localVideoTrack.stop();
-      setLocalVideoTrack(null);
       setMuteVideo(true);
+      setLocalVideoTrack(null);
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
+      localVideoTrack.stop();
     } else {
       try {
         setLoadingCamera(true);
@@ -141,6 +141,8 @@ function Landing() {
     }
   };
 
+  
+
   useEffect(() => {
     if (videoRef && videoRef.current) {
       getCam();
@@ -164,7 +166,7 @@ function Landing() {
   if (!joined) {
     return (
       <>
-        <Dialogue />
+        {/* <Dialogue /> */}
         <div className="container flex   gap-4">
           <div className="min-w-[600px] relative min-h-[450px]  rounded overflow-hidden">
             {muteVideo && (
@@ -288,6 +290,8 @@ function Landing() {
 
   return (
     <Room
+    loadingCamera={loadingCamera}
+    loadingMic={loadingMic}
       activeAudioDeviceId={activeAudioDeviceId}
       activeVideoDeviceId={activeVideoDeviceId}
       name={name}

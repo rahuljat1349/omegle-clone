@@ -1,4 +1,13 @@
-import { Mic, MicOff, Phone, Repeat2, Video, VideoOff } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader,
+  Mic,
+  MicOff,
+  Phone,
+  Repeat2,
+  Video,
+  VideoOff,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import ListMenu from "./Menu";
@@ -15,6 +24,8 @@ const Room = ({
   selectDevice,
   activeVideoDeviceId,
   activeAudioDeviceId,
+  loadingCamera,
+  loadingMic,
 }: {
   name: string;
   mediaDevices: MediaDeviceInfo[];
@@ -25,6 +36,8 @@ const Room = ({
   selectDevice: (deviceId: string, kind: "audioinput" | "videoinput") => void;
   muteAudio: boolean;
   muteVideo: boolean;
+  loadingCamera: boolean;
+  loadingMic: boolean;
   activeVideoDeviceId: string;
   activeAudioDeviceId: string;
 }) => {
@@ -38,10 +51,12 @@ const Room = ({
   const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(
     null
   );
-  const [peerVideoPaused, setPeerVideoPaused] = useState(false);
-  const [peerAudioPaused, setPeerAudioPaused] = useState(false);
+  const [peerVideoPaused, setPeerVideoPaused] = useState<boolean>();
+  const [peerAudioPaused, setPeerAudioPaused] = useState<boolean>();
+  const [connectTrigger, setConnectTrigger] = useState(false);
 
   const [currentRoomId, setCurrentRoomId] = useState("");
+  const [hangup, setHangup] = useState(false);
 
   useEffect(() => {
     const socket = io(URL);
@@ -95,10 +110,11 @@ const Room = ({
         (remoteVideoRef.current.srcObject = remoteStream);
 
       pc.ontrack = (e) => {
-        console.log("Ontrack called!");
+        console.log("ontrack..");
 
         if (e.track.kind == "video") {
           remoteStream.addTrack(e.track);
+          console.log(e.track);
         }
         if (e.track.kind == "audio") {
           remoteStream.addTrack(e.track);
@@ -128,16 +144,15 @@ const Room = ({
       socket.emit("mediaStatus", {
         status: muteAudio,
         type: "audio",
-        roomId: roomId,
+        roomId,
       });
       socket.emit("mediaStatus", {
         status: muteVideo,
         type: "video",
-        roomId: roomId,
+        roomId,
       });
-      
     });
-   
+
     socket.on("answer", ({ sdp }) => {
       setLobby(false);
       setSendingPc((pc) => {
@@ -146,13 +161,9 @@ const Room = ({
       });
 
       console.log("Connected!");
-      
     });
 
     socket.on("add-ice-candidate", ({ candidate, type }) => {
-      
-
-
       if (type == "sender") {
         setReceivingPc((pc) => {
           pc?.addIceCandidate(candidate);
@@ -167,21 +178,28 @@ const Room = ({
     });
 
     socket.on("mediaStatus", ({ status, type }) => {
-      if (type == "audio") {
-        setPeerAudioPaused(status);
-        console.log(peerAudioPaused);
-      }
-      if (type == "video") {
-        setPeerVideoPaused(status);
-        console.log(peerVideoPaused);
-      }
+      if (type === "audio") {
+        setPeerAudioPaused((prev) => {
+          console.log(prev);
 
-      console.log(status, type);
-      
+          return status;
+        });
+      }
+      if (type === "video") {
+        setPeerVideoPaused((prev) => {
+          console.log(prev);
+
+          return status;
+        });
+      }
     });
 
     socket.on("lobby", () => {
       setLobby(true);
+    });
+
+    socket.on("hangup", ({}) => {
+      handleHangup();
     });
 
     setsocket(socket);
@@ -189,14 +207,53 @@ const Room = ({
     return () => {
       socket.close();
     };
-  }, [name]);
+  }, []);
 
   useEffect(() => {
     if (videoRef.current && localVideoTrack) {
       videoRef.current.srcObject = new MediaStream([localVideoTrack]);
-      videoRef.current.play();
+      // videoRef.current.play();
     }
   }, [videoRef, localVideoTrack]);
+
+  useEffect(() => {
+    const updatePcTrack = async () => {
+      if (!sendingPc) {
+        return;
+      }
+      const audioSender = sendingPc
+        .getSenders()
+        .find((s) => s.track?.kind == "audio");
+      const videoSender = sendingPc
+        .getSenders()
+        .find((s) => s.track?.kind == "video");
+
+      if (audioSender && localAudioTrack) {
+        audioSender.replaceTrack(localAudioTrack);
+      } else {
+        localAudioTrack && sendingPc.addTrack(localAudioTrack);
+      }
+      if (videoSender && localVideoTrack) {
+        videoSender.replaceTrack(localVideoTrack);
+      } else {
+        localVideoTrack && sendingPc.addTrack(localVideoTrack);
+      }
+    };
+    updatePcTrack();
+  }, [localAudioTrack, localVideoTrack]);
+
+  const handleHangup = async () => {
+    socket?.emit("hangup", { roomId: currentRoomId });
+
+    sendingPc?.close();
+    receivingPc?.close();
+
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+    socket?.close();
+    setHangup(true);
+  };
 
   return (
     <div className="container ">
@@ -241,10 +298,13 @@ const Room = ({
               } `}
             >
               <button
-                onClick={() => {
+                onClick={async () => {
                   toggleAudio();
+
+                  const newStatus = !muteAudio;
+                  toggleAudio(); // this will update state
                   socket?.emit("mediaStatus", {
-                    status: !muteAudio,
+                    status: newStatus, // send what you're setting it to, not what it was
                     type: "audio",
                     roomId: currentRoomId,
                   });
@@ -255,7 +315,13 @@ const Room = ({
                     : "bg-green-400/70 hover:bg-green-400/60"
                 }  flex justify-center p-4 cursor-pointer`}
               >
-                {muteAudio ? <MicOff /> : <Mic className=" " />}
+                {loadingMic ? (
+                  <Loader className="animate-spin" />
+                ) : muteAudio ? (
+                  <MicOff />
+                ) : (
+                  <Mic className=" " />
+                )}{" "}
               </button>
               <div className=" flex justify-center items-center">
                 <ListMenu
@@ -272,10 +338,13 @@ const Room = ({
               } `}
             >
               <button
-                onClick={() => {
+                onClick={async () => {
+                  toggleVideo();
+
+                  const newStatus = !muteVideo;
                   toggleVideo();
                   socket?.emit("mediaStatus", {
-                    status: !muteVideo,
+                    status: newStatus,
                     type: "video",
                     roomId: currentRoomId,
                   });
@@ -286,7 +355,13 @@ const Room = ({
                     : "bg-green-400/70 hover:bg-green-400/60"
                 }  flex justify-center p-4 cursor-pointer`}
               >
-                {muteVideo ? <VideoOff /> : <Video className="" />}
+                {loadingCamera ? (
+                  <Loader className="animate-spin" />
+                ) : muteVideo ? (
+                  <VideoOff />
+                ) : (
+                  <Video />
+                )}
               </button>
               <div className=" flex justify-center items-center">
                 <ListMenu
@@ -298,17 +373,30 @@ const Room = ({
               </div>
             </div>
             <button
+              onClick={async () => {
+                setLobby(true);
+                await handleHangup();
+                setHangup(false);
+                setConnectTrigger(!connectTrigger);
+              }}
               disabled={lobby}
               className="rounded-full disabled:bg-white/10 disabled:cursor-not-allowed hover:bg-white/10 disabled:text-white/20 flex justify-center p-4 cursor-pointer"
             >
               <Repeat2 />
             </button>
             <button
-              onClick={() => {}}
-              disabled={lobby}
-              className="rounded-full bg-red-800 disabled:cursor-not-allowed disabled:bg-red-800/20 hover:bg-red-800/80 flex justify-center p-4 cursor-pointer"
+              onClick={() => {
+                if (!hangup) {
+                  handleHangup();
+                } else {
+                }
+              }}
+              className={`rounded-full  ${
+                !hangup &&
+                "bg-red-800 disabled:cursor-not-allowed  hover:bg-red-800/80"
+              } flex justify-center p-4 cursor-pointer`}
             >
-              <Phone className="rotate-[135deg] " />
+              {hangup ? <ArrowLeft /> : <Phone className="rotate-[135deg] " />}
             </button>
           </div>
           <div className="w-full relative min-h-[150px] bg-black rounded overflow-hidden">
@@ -325,17 +413,13 @@ const Room = ({
               ref={videoRef}
               width={200}
             ></video>
-            {!muteVideo && (
-              <span className="absolute shadow-2xl shadow-white  px-2 font-semibold text-border right-4 bottom-0">
-                You
-              </span>
-            )}
-            {muteAudio && (
-              <MicOff
-                color="white"
-                className="absolute right-1 text-border  size-4  bottom-1"
-              />
-            )}
+
+            <span className="absolute flex justify-center items-center gap-1 shadow-2xl shadow-white  px-2 font-semibold text-border right-1 bottom-0">
+              You
+              {muteAudio && (
+                <MicOff color="white" className="  text-border  size-4  " />
+              )}
+            </span>
           </div>
         </div>
       </div>
