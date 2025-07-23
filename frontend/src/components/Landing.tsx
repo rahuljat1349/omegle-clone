@@ -5,9 +5,12 @@ import { Loader, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import ListMenu from "./Menu";
 import { GridPattern } from "./magicui/grid-pattern";
 import { ComicText } from "./magicui/comic-text";
+import Switch from "@mui/material/Switch";
 
 function Landing() {
   const [name, setName] = useState("");
+  const [enteredRoomId, setEnteredRoomId] = useState("");
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [localAudioTrack, setLocalAudioTrack] =
     useState<null | MediaStreamTrack>(null);
@@ -17,7 +20,7 @@ function Landing() {
   const [muteVideo, setMuteVideo] = useState(false);
   const [activeAudioDeviceId, setActiveAudioDeviceId] = useState<string>("");
   const [activeVideoDeviceId, setActiveVideoDeviceId] = useState<string>("");
-
+  const [privateRoom, setPrivateRoom] = useState(false);
   const [mediaDevices, setMediaDevices] = useState<MediaDeviceInfo[]>([]);
 
   const [joined, setJoined] = useState(false);
@@ -87,6 +90,14 @@ function Landing() {
     }
   };
 
+  const handlePrivateRoomToggle = async () => {
+    if (!privateRoom) {
+      setPrivateRoom(true);
+    } else {
+      setPrivateRoom(false);
+    }
+  };
+
   // const toggleVideo = async () => {
   //   if (localVideoTrack) {
   //     setMuteVideo(true);
@@ -130,14 +141,12 @@ function Landing() {
       }
       setMuteAudio(true);
     } else {
-       if (localAudioTrack) {
-         localAudioTrack.enabled = true;
-       };
+      if (localAudioTrack) {
+        localAudioTrack.enabled = true;
+      }
       setMuteAudio(false);
     }
   };
-
-  
 
   // const toggleAudio = async () => {
   //   if (localAudioTrack) {
@@ -180,13 +189,13 @@ function Landing() {
       const activeDeviceId = await track.getSettings().deviceId;
 
       if (kind == "audioinput") {
-          if (activeDeviceId) {
+        if (activeDeviceId) {
           setActiveAudioDeviceId(activeDeviceId);
         }
         setLocalAudioTrack(track);
         setMuteAudio(false);
       } else if (kind == "videoinput") {
-          if (activeDeviceId) {
+        if (activeDeviceId) {
           setActiveVideoDeviceId(activeDeviceId);
         }
         setLocalVideoTrack(track);
@@ -232,7 +241,7 @@ function Landing() {
           <div className="flex">
             <div className="min-w-[600px] relative min-h-[450px]  rounded overflow-hidden">
               {muteVideo && (
-                <div className="w-full h-full bg-black/40 flex justify-center items-center flex-col">
+                <div className="w-full h-full bg-[#000] z-20 text-white flex justify-center items-center flex-col">
                   <VideoOff size={56} />
                   <span>Camera is off</span>
                 </div>
@@ -255,7 +264,7 @@ function Landing() {
               </span>
             </div>
             <div className=" bg-gray-800 text-white rounded z-20 p-1 gap-2 flex flex-col justify-between ">
-              <div className=" h-full flex flex-col items-center justify-evenly">
+              <div className=" h-full flex flex-col items-center justify-start gap-4 py-2">
                 <div
                   className={`flex rounded-4xl   ${
                     muteAudio ? "bg-red-800/30 " : "bg-green-400/50 "
@@ -322,10 +331,27 @@ function Landing() {
                     />
                   </div>
                 </div>
+
+                <div className="flex justify-center items-center">
+                  <span>Private Room</span>
+                  <Switch onChange={handlePrivateRoomToggle} />
+                </div>
               </div>
-              <div className="flex flex-col bg-black/10 p-2 gap-4 w-full">
+              <div className="flex flex-col bg-black/10 p-2 gap-2 w-full">
+                {privateRoom && (
+                  <input
+                    className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-2"
+                    onChange={(e) => {
+                      setEnteredRoomId(e.target.value);
+                    }}
+                    value={enteredRoomId}
+                    type="text"
+                    required
+                    placeholder="Enter Room Id"
+                  />
+                )}
                 <input
-                  className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-3"
+                  className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-2"
                   onChange={(e) => {
                     setName(e.target.value);
                     localStorage.setItem("name", e.target.value);
@@ -343,6 +369,14 @@ function Landing() {
                 >
                   Join
                 </button>
+                {privateRoom && (
+                  <div className="flex flex-col gap-2">
+                    <span>Or</span>
+                    <button className="bg-yellow-700 px-6 cursor-pointer text-white hover:bg-yellow-800 duration-150 font-semibold rounded py-2 ">
+                      Create a Room
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
