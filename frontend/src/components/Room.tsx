@@ -70,10 +70,10 @@ const Room = ({
 
       setSendingPc(pc);
 
-      if ( localVideoTrack) {
+      if (localVideoTrack) {
         pc.addTrack(localVideoTrack);
       }
-      if ( localAudioTrack) {
+      if (localAudioTrack) {
         pc.addTrack(localAudioTrack);
       }
 
@@ -201,6 +201,7 @@ const Room = ({
 
     socket.on("hangup", ({}) => {
       handleHangup();
+      setHangup(true);
     });
 
     setsocket(socket);
@@ -208,7 +209,7 @@ const Room = ({
     return () => {
       socket.close();
     };
-  }, []);
+  }, [connectTrigger]);
 
   useEffect(() => {
     if (videoRef.current && localVideoTrack) {
@@ -218,6 +219,7 @@ const Room = ({
   }, [videoRef, localVideoTrack]);
 
   useEffect(() => {
+    // necessary for initial mute (localTrack(null))
     const updatePcTrack = async () => {
       if (!sendingPc) {
         return;
@@ -244,8 +246,6 @@ const Room = ({
   }, [localAudioTrack, localVideoTrack, sendingPc]);
 
   const handleHangup = async () => {
-    socket?.emit("hangup", { roomId: currentRoomId });
-
     sendingPc?.close();
     receivingPc?.close();
 
@@ -253,16 +253,16 @@ const Room = ({
       remoteVideoRef.current.srcObject = null;
     }
     socket?.close();
-    setHangup(true);
   };
 
   return (
     <div className="container ">
       <div className="flex justify-center w-full h-full  ">
         <div className="min-h-[600px] relative bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
-          {lobby ? (
-              <Ripple />
-            
+          {hangup ? (
+            "call ended."
+          ) : lobby ? (
+            <Ripple />
           ) : (
             <div>
               {peerVideoPaused && (
@@ -377,11 +377,14 @@ const Room = ({
             <button
               onClick={async () => {
                 setLobby(true);
-                await handleHangup();
+
                 setHangup(false);
+                socket?.emit("hangup", { roomId: currentRoomId });
+
+                handleHangup();
                 setConnectTrigger(!connectTrigger);
               }}
-              disabled={lobby}
+              disabled={lobby && !hangup}
               className="rounded-full disabled:bg-white/10 disabled:cursor-not-allowed hover:bg-white/10 disabled:text-white/20 flex justify-center p-4 cursor-pointer"
             >
               <Repeat2 />
@@ -389,14 +392,17 @@ const Room = ({
             <button
               onClick={() => {
                 if (!hangup) {
+                  setHangup(true);
+                  socket?.emit("hangup", { roomId: currentRoomId });
                   handleHangup();
                 } else {
+                  window.location.reload();
                 }
               }}
               className={`rounded-full  ${
                 !hangup &&
                 "bg-red-800 disabled:cursor-not-allowed  hover:bg-red-800/80"
-              } flex justify-center p-4 cursor-pointer`}
+              } flex justify-center p-4 hover:bg-white/10 cursor-pointer`}
             >
               {hangup ? <ArrowLeft /> : <Phone className="rotate-[135deg] " />}
             </button>
