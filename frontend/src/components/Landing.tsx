@@ -51,6 +51,36 @@ function Landing() {
     });
   }
 
+
+
+  // const toggleVideo = async () => {
+  //   if (!localAudioTrack) {
+  //     return;
+  //   }
+
+  //   if (!muteVideo) {
+  //     localVideoTrack && (localVideoTrack.enabled = false);
+
+  //     if (videoRef.current) {
+  //       videoRef.current.srcObject = null;
+  //     }
+  //     setMuteVideo(true);
+  //   } else {
+  //     localVideoTrack && (localVideoTrack.enabled = true);
+
+  //     if (videoRef.current) {
+  //       localVideoTrack &&
+  //         (videoRef.current.srcObject = await new MediaStream([
+  //           localVideoTrack,
+  //         ]));
+  //       videoRef.current.play();
+  //     }
+  //     setMuteVideo(false);
+  //   }
+  // };
+
+
+
   const toggleVideo = async () => {
     if (localVideoTrack) {
       setMuteVideo(true);

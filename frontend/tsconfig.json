@@ -3,5 +3,15 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "baseUrl": ".", // 👈 add this
+    "paths": {
+      "@/*": ["src/*"] // 👈 and this
+    }
+  },
+  "include": ["src"]
 }

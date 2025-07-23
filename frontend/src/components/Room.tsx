@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import ListMenu from "./Menu";
+import { Ripple } from "./magicui/ripple";
 
 const Room = ({
   mediaDevices,
@@ -69,10 +70,10 @@ const Room = ({
 
       setSendingPc(pc);
 
-      if (localVideoTrack) {
+      if ( localVideoTrack) {
         pc.addTrack(localVideoTrack);
       }
-      if (localAudioTrack) {
+      if ( localAudioTrack) {
         pc.addTrack(localAudioTrack);
       }
 
@@ -216,31 +217,31 @@ const Room = ({
     }
   }, [videoRef, localVideoTrack]);
 
-  useEffect(() => {
-    const updatePcTrack = async () => {
-      if (!sendingPc) {
-        return;
-      }
-      const audioSender = sendingPc
-        .getSenders()
-        .find((s) => s.track?.kind == "audio");
-      const videoSender = sendingPc
-        .getSenders()
-        .find((s) => s.track?.kind == "video");
+  // useEffect(() => {
+  //   const updatePcTrack = async () => {
+  //     if (!sendingPc) {
+  //       return;
+  //     }
+  //     const audioSender = sendingPc
+  //       .getSenders()
+  //       .find((s) => s.track?.kind == "audio");
+  //     const videoSender = sendingPc
+  //       .getSenders()
+  //       .find((s) => s.track?.kind == "video");
 
-      if (audioSender && localAudioTrack) {
-        audioSender.replaceTrack(localAudioTrack);
-      } else {
-        localAudioTrack && sendingPc.addTrack(localAudioTrack);
-      }
-      if (videoSender && localVideoTrack) {
-        videoSender.replaceTrack(localVideoTrack);
-      } else {
-        localVideoTrack && sendingPc.addTrack(localVideoTrack);
-      }
-    };
-    updatePcTrack();
-  }, [localAudioTrack, localVideoTrack]);
+  //     if (audioSender && localAudioTrack) {
+  //       audioSender.replaceTrack(localAudioTrack);
+  //     } else {
+  //       localAudioTrack && sendingPc.addTrack(localAudioTrack);
+  //     }
+  //     if (videoSender && localVideoTrack) {
+  //       videoSender.replaceTrack(localVideoTrack);
+  //     } else {
+  //       localVideoTrack && sendingPc.addTrack(localVideoTrack);
+  //     }
+  //   };
+  //   updatePcTrack();
+  // }, [localAudioTrack, localVideoTrack, sendingPc]);
 
   const handleHangup = async () => {
     socket?.emit("hangup", { roomId: currentRoomId });
@@ -260,7 +261,8 @@ const Room = ({
       <div className="flex justify-center w-full h-full  ">
         <div className="min-h-[600px] relative bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
           {lobby ? (
-            "waiting to connect.."
+              <Ripple />
+            
           ) : (
             <div>
               {peerVideoPaused && (

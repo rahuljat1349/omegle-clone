@@ -9,6 +9,26 @@
   }
 }
 
+
+/* Ripple animation */
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  40% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3.2);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 2.8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
