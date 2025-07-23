@@ -27,21 +27,19 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT,  () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
-  startSelfPing();
+  console.log(`🚀 Server running on ${SELF_URL}`);
+  pingServer();
 });
 
-function startSelfPing() {
-  const interval = 1000 * 60 * 1; // Every 1 minute
-  setInterval(() => {
-    http
-      .get(SELF_URL, (res) => {
-        console.log(
-          `[PING] Status ${res.statusCode} at ${new Date().toISOString()}`
-        );
-      })
-      .on("error", (err) => {
-        console.error(`[PING ERROR] ${err.message}`);
-      });
-  }, interval);
-}
+// Function to ping server
+const pingServer = async () => {
+  try {
+    const response = await fetch(`${SELF_URL}`);
+    console.log("Server ping successful:", response.status);
+  } catch (error: any) {
+    console.error("Server ping failed:", error.message);
+  }
+};
+
+// Set up ping interval (10 minutes = 600000 milliseconds)
+setInterval(pingServer, 100000);
