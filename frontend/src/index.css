@@ -4,13 +4,13 @@
 
 @layer utilities {
   .text-border {
-    -webkit-text-stroke: .5px black; /* or any color */
-    color: white; /* Inner text fill */
+    -webkit-text-stroke: .5px black;
+    color: white; 
   }
 }
 
 
-/* Ripple animation */
+
 @keyframes ripple {
   0% {
     transform: translate(-50%, -50%) scale(1);

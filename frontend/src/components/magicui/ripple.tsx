@@ -21,7 +21,7 @@ export const Ripple = React.memo(function Ripple({
       className="pointer-events-none absolute inset-0 select-none [mask-image:linear-gradient(to_bottom,white,transparent)]"
       {...props}
     >
-      {/* ✅ Smooth expanding ripples */}
+     
       {Array.from({ length: numCircles }, (_, i) => {
         const size = mainCircleSize + i * 70;
         const opacity = mainCircleOpacity - i * 0.03;
@@ -51,7 +51,7 @@ export const Ripple = React.memo(function Ripple({
         );
       })}
 
-      {/* ✅ Centered text — rendered only once */}
+    
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="text-white text-base font-semibold">Connecting...</div>
       </div>

@@ -217,31 +217,31 @@ const Room = ({
     }
   }, [videoRef, localVideoTrack]);
 
-  // useEffect(() => {
-  //   const updatePcTrack = async () => {
-  //     if (!sendingPc) {
-  //       return;
-  //     }
-  //     const audioSender = sendingPc
-  //       .getSenders()
-  //       .find((s) => s.track?.kind == "audio");
-  //     const videoSender = sendingPc
-  //       .getSenders()
-  //       .find((s) => s.track?.kind == "video");
+  useEffect(() => {
+    const updatePcTrack = async () => {
+      if (!sendingPc) {
+        return;
+      }
+      const audioSender = sendingPc
+        .getSenders()
+        .find((s) => s.track?.kind == "audio");
+      const videoSender = sendingPc
+        .getSenders()
+        .find((s) => s.track?.kind == "video");
 
-  //     if (audioSender && localAudioTrack) {
-  //       audioSender.replaceTrack(localAudioTrack);
-  //     } else {
-  //       localAudioTrack && sendingPc.addTrack(localAudioTrack);
-  //     }
-  //     if (videoSender && localVideoTrack) {
-  //       videoSender.replaceTrack(localVideoTrack);
-  //     } else {
-  //       localVideoTrack && sendingPc.addTrack(localVideoTrack);
-  //     }
-  //   };
-  //   updatePcTrack();
-  // }, [localAudioTrack, localVideoTrack, sendingPc]);
+      if (audioSender && localAudioTrack) {
+        audioSender.replaceTrack(localAudioTrack);
+      } else {
+        localAudioTrack && sendingPc.addTrack(localAudioTrack);
+      }
+      if (videoSender && localVideoTrack) {
+        videoSender.replaceTrack(localVideoTrack);
+      } else {
+        localVideoTrack && sendingPc.addTrack(localVideoTrack);
+      }
+    };
+    updatePcTrack();
+  }, [localAudioTrack, localVideoTrack, sendingPc]);
 
   const handleHangup = async () => {
     socket?.emit("hangup", { roomId: currentRoomId });

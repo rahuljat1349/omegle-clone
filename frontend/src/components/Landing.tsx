@@ -51,90 +51,101 @@ function Landing() {
     });
   }
 
-
-
-  // const toggleVideo = async () => {
-  //   if (!localAudioTrack) {
-  //     return;
-  //   }
-
-  //   if (!muteVideo) {
-  //     localVideoTrack && (localVideoTrack.enabled = false);
-
-  //     if (videoRef.current) {
-  //       videoRef.current.srcObject = null;
-  //     }
-  //     setMuteVideo(true);
-  //   } else {
-  //     localVideoTrack && (localVideoTrack.enabled = true);
-
-  //     if (videoRef.current) {
-  //       localVideoTrack &&
-  //         (videoRef.current.srcObject = await new MediaStream([
-  //           localVideoTrack,
-  //         ]));
-  //       videoRef.current.play();
-  //     }
-  //     setMuteVideo(false);
-  //   }
-  // };
-
-
-
   const toggleVideo = async () => {
-    if (localVideoTrack) {
-      setMuteVideo(true);
-      setLocalVideoTrack(null);
+    if (!localVideoTrack) {
+      return;
+    }
+
+    if (!muteVideo) {
+      localVideoTrack && (localVideoTrack.enabled = false);
+
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
-      localVideoTrack.stop();
+      setMuteVideo(true);
     } else {
-      try {
-        setLoadingCamera(true);
-        const videoTrack = (
-          await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false,
-          })
-        ).getVideoTracks()[0];
-        setLocalVideoTrack(videoTrack);
-        setMuteVideo(false);
+      localVideoTrack && (localVideoTrack.enabled = true);
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = new MediaStream([videoTrack]);
-          videoRef.current.play();
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoadingCamera(false);
+      if (videoRef.current) {
+        localVideoTrack &&
+          (videoRef.current.srcObject = await new MediaStream([
+            localVideoTrack,
+          ]));
+        videoRef.current.play();
       }
+      setMuteVideo(false);
     }
   };
+
+  // const toggleVideo = async () => {
+  //   if (localVideoTrack) {
+  //     setMuteVideo(true);
+  //     setLocalVideoTrack(null);
+  //     if (videoRef.current) {
+  //       videoRef.current.srcObject = null;
+  //     }
+  //     localVideoTrack.stop();
+  //   } else {
+  //     try {
+  //       setLoadingCamera(true);
+  //       const videoTrack = (
+  //         await navigator.mediaDevices.getUserMedia({
+  //           video: true,
+  //           audio: false,
+  //         })
+  //       ).getVideoTracks()[0];
+  //       setLocalVideoTrack(videoTrack);
+  //       setMuteVideo(false);
+
+  //       if (videoRef.current) {
+  //         videoRef.current.srcObject = new MediaStream([videoTrack]);
+  //         videoRef.current.play();
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       setLoadingCamera(false);
+  //     }
+  //   }
+  // };
+
   const toggleAudio = async () => {
-    if (localAudioTrack) {
-      localAudioTrack.stop();
-      setLocalAudioTrack(null);
+    if (!localAudioTrack) {
+      return;
+    }
+
+    if (!muteAudio) {
+      localAudioTrack && (localAudioTrack.enabled = true);
       setMuteAudio(true);
     } else {
-      try {
-        setLoadingMic(true);
-        const audioTrack = (
-          await navigator.mediaDevices.getUserMedia({
-            video: false,
-            audio: true,
-          })
-        ).getAudioTracks()[0];
-        setLocalAudioTrack(audioTrack);
-        setMuteAudio(false);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoadingMic(false);
-      }
+      localAudioTrack && (localAudioTrack.enabled = true);
+      setMuteAudio(false);
     }
   };
+
+  // const toggleAudio = async () => {
+  //   if (localAudioTrack) {
+  //     localAudioTrack.stop();
+  //     setLocalAudioTrack(null);
+  //     setMuteAudio(true);
+  //   } else {
+  //     try {
+  //       setLoadingMic(true);
+  //       const audioTrack = (
+  //         await navigator.mediaDevices.getUserMedia({
+  //           video: false,
+  //           audio: true,
+  //         })
+  //       ).getAudioTracks()[0];
+  //       setLocalAudioTrack(audioTrack);
+  //       setMuteAudio(false);
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       setLoadingMic(false);
+  //     }
+  //   }
+  // };
 
   const selectDevice = async (
     deviceId: string,
@@ -155,11 +166,11 @@ function Landing() {
       if (kind == "audioinput") {
         activeDeviceId && setActiveAudioDeviceId(activeDeviceId);
         setLocalAudioTrack(track);
-        setMuteAudio(false)
+        setMuteAudio(false);
       } else if (kind == "videoinput") {
         activeDeviceId && setActiveVideoDeviceId(activeDeviceId);
         setLocalVideoTrack(track);
-        setMuteVideo(false)
+        setMuteVideo(false);
       }
 
       if (kind == "videoinput" && videoRef.current) {
@@ -170,8 +181,6 @@ function Landing() {
       console.log("error selecting device ", error);
     }
   };
-
-  
 
   useEffect(() => {
     if (videoRef && videoRef.current) {
@@ -320,8 +329,8 @@ function Landing() {
 
   return (
     <Room
-    loadingCamera={loadingCamera}
-    loadingMic={loadingMic}
+      loadingCamera={loadingCamera}
+      loadingMic={loadingMic}
       activeAudioDeviceId={activeAudioDeviceId}
       activeVideoDeviceId={activeVideoDeviceId}
       name={name}
