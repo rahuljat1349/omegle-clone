@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/dialogue.tsx","./src/components/landing.tsx","./src/components/menu.tsx","./src/components/room.tsx","./src/components/magicui/comic-text.tsx","./src/components/magicui/grid-pattern.tsx","./src/components/magicui/ripple.tsx","./src/lib/utils.ts"],"version":"5.8.3"}

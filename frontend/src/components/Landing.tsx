@@ -21,8 +21,8 @@ function Landing() {
   const [mediaDevices, setMediaDevices] = useState<MediaDeviceInfo[]>([]);
 
   const [joined, setJoined] = useState(false);
-  const [loadingCamera, setLoadingCamera] = useState(false);
-  const [loadingMic, setLoadingMic] = useState(false);
+  const [loadingCamera] = useState(false);
+  const [loadingMic] = useState(false);
 
   async function getCam() {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -33,12 +33,16 @@ function Landing() {
     const videoTrack = await stream.getVideoTracks()[0];
     setLocalVideoTrack(videoTrack);
     const videoDeviceId = await videoTrack.getSettings().deviceId;
-    videoDeviceId && setActiveVideoDeviceId(videoDeviceId);
+    if (videoDeviceId) {
+      setActiveVideoDeviceId(videoDeviceId);
+    }
     //
     const audioTrack = await stream.getAudioTracks()[0];
     setLocalAudioTrack(audioTrack);
     const audioDeviceId = await audioTrack.getSettings().deviceId;
-    audioDeviceId && setActiveAudioDeviceId(audioDeviceId);
+    if (audioDeviceId) {
+      setActiveAudioDeviceId(audioDeviceId);
+    }
 
     if (!videoRef.current) {
       return;
@@ -59,20 +63,24 @@ function Landing() {
     }
 
     if (!muteVideo) {
-      localVideoTrack && (localVideoTrack.enabled = false);
+      if (localVideoTrack) {
+        localVideoTrack.enabled = false;
+      }
 
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
       setMuteVideo(true);
     } else {
-      localVideoTrack && (localVideoTrack.enabled = true);
+      if (localVideoTrack) {
+        localVideoTrack.enabled = true;
+      }
 
       if (videoRef.current) {
-        localVideoTrack &&
-          (videoRef.current.srcObject = await new MediaStream([
-            localVideoTrack,
-          ]));
+        if (localVideoTrack) {
+          videoRef.current.srcObject = await new MediaStream([localVideoTrack]);
+        }
+
         videoRef.current.play();
       }
       setMuteVideo(false);
@@ -117,10 +125,14 @@ function Landing() {
     }
 
     if (!muteAudio) {
-      localAudioTrack && (localAudioTrack.enabled = true);
+      if (localAudioTrack) {
+        localAudioTrack.enabled = true;
+      }
       setMuteAudio(true);
     } else {
-      localAudioTrack && (localAudioTrack.enabled = true);
+       if (localAudioTrack) {
+         localAudioTrack.enabled = true;
+       };
       setMuteAudio(false);
     }
   };
@@ -166,11 +178,15 @@ function Landing() {
       const activeDeviceId = await track.getSettings().deviceId;
 
       if (kind == "audioinput") {
-        activeDeviceId && setActiveAudioDeviceId(activeDeviceId);
+          if (activeDeviceId) {
+          setActiveAudioDeviceId(activeDeviceId);
+        }
         setLocalAudioTrack(track);
         setMuteAudio(false);
       } else if (kind == "videoinput") {
-        activeDeviceId && setActiveVideoDeviceId(activeDeviceId);
+          if (activeDeviceId) {
+          setActiveVideoDeviceId(activeDeviceId);
+        }
         setLocalVideoTrack(track);
         setMuteVideo(false);
       }
@@ -207,8 +223,8 @@ function Landing() {
   if (!joined) {
     return (
       <>
-        {/* <Dialogue /> */}
-        <GridPattern  strokeWidth={0.3} />
+        <Dialogue />
+        <GridPattern strokeWidth={0.3} />
         <div className="container justify-center items-center  flex z-20 flex-col gap-4">
           <ComicText className="shadow-2xl w-fit">Vibes</ComicText>
           <div className="flex">

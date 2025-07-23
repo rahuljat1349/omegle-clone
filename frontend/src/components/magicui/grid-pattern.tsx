@@ -19,7 +19,7 @@ export function GridPattern({
   y = -1,
   strokeDasharray = "0",
   squares,
-  className,
+ 
   ...props
 }: GridPatternProps) {
   const id = useId();

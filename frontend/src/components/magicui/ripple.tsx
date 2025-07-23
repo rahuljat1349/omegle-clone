@@ -13,7 +13,6 @@ export const Ripple = React.memo(function Ripple({
   mainCircleSize = 210,
   mainCircleOpacity = 0.24,
   numCircles = 8,
-  className,
   ...props
 }: RippleProps) {
   return (

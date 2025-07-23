@@ -109,8 +109,8 @@ const Room = ({
       setReceivingPc(pc);
 
       const remoteStream = new MediaStream();
-      remoteVideoRef.current &&
-        (remoteVideoRef.current.srcObject = remoteStream);
+      if (remoteVideoRef.current){
+        remoteVideoRef.current.srcObject = remoteStream;}
 
       pc.ontrack = (e) => {
         console.log("ontrack..");
@@ -201,14 +201,11 @@ const Room = ({
       setLobby(true);
     });
 
-    socket.on("hangup", ({}) => {
+    socket.on("hangup", () => {
       handleHangup();
       setHangup(true);
       console.log("hung up!");
-      
     });
-
-    
 
     setsocket(socket);
 
@@ -240,12 +237,16 @@ const Room = ({
       if (audioSender && localAudioTrack) {
         audioSender.replaceTrack(localAudioTrack);
       } else {
-        localAudioTrack && sendingPc.addTrack(localAudioTrack);
+          if (localAudioTrack) {
+          sendingPc.addTrack(localAudioTrack);
+        }
       }
       if (videoSender && localVideoTrack) {
         videoSender.replaceTrack(localVideoTrack);
       } else {
-        localVideoTrack && sendingPc.addTrack(localVideoTrack);
+         if (localVideoTrack) {
+          sendingPc.addTrack(localVideoTrack);
+        }
       }
     };
     updatePcTrack();
