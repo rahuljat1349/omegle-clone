@@ -4,7 +4,7 @@ import http from "http";
 import cors from "cors";
 
 const server = http.createServer(app);
-const SELF_URL = process.env.SELF_URL || `http://localhost:${PORT}/ping`;
+const SELF_URL = process.env.SELF_URL || `http://localhost:8000/ping`;
 import { Server } from "socket.io";
 import { UserManager } from "./managers/userManager";
 
