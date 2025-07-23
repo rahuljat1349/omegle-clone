@@ -3,6 +3,8 @@ import Room from "./Room";
 import Dialogue from "./Dialogue";
 import { Loader, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import ListMenu from "./Menu";
+import { GridPattern } from "./magicui/grid-pattern";
+import { ComicText } from "./magicui/comic-text";
 
 function Landing() {
   const [name, setName] = useState("");
@@ -206,120 +208,124 @@ function Landing() {
     return (
       <>
         {/* <Dialogue /> */}
-        <div className="container flex   gap-4">
-          <div className="min-w-[600px] relative min-h-[450px]  rounded overflow-hidden">
-            {muteVideo && (
-              <div className="w-full h-full bg-black/40 flex justify-center items-center flex-col">
-                <VideoOff size={56} />
-                <span>Camera is off</span>
-              </div>
-            )}
-            <video
-              className={`${muteVideo && "hidden"}`}
-              height={600}
-              width={600}
-              ref={videoRef}
-            ></video>
-
-            <span className="absolute flex gap-2 justify-center items-center shadow-2xl shadow-white text-lg px-2 font-bold text-border right-2 bottom-1">
-              You
-              {muteAudio && (
-                <MicOff
-                  color="white"
-                  className=" right-1 text-border  size-6  bottom-1"
-                />
+        <GridPattern  strokeWidth={0.3} />
+        <div className="container justify-center items-center  flex z-20 flex-col gap-4">
+          <ComicText className="shadow-2xl w-fit">Vibes</ComicText>
+          <div className="flex">
+            <div className="min-w-[600px] relative min-h-[450px]  rounded overflow-hidden">
+              {muteVideo && (
+                <div className="w-full h-full bg-black/40 flex justify-center items-center flex-col">
+                  <VideoOff size={56} />
+                  <span>Camera is off</span>
+                </div>
               )}
-            </span>
-          </div>
-          <div className=" bg-black/20 rounded p-1 gap-2 flex flex-col justify-between ">
-            <div className="bg-black/10 h-full flex flex-col items-center justify-evenly">
-              <div
-                className={`flex rounded-4xl   ${
-                  muteAudio ? "bg-red-800/30 " : "bg-green-400/50 "
-                } `}
-              >
-                <button
-                  disabled={loadingMic}
-                  onClick={() => {
-                    toggleAudio();
-                  }}
-                  className={`rounded-full ${
-                    muteAudio
-                      ? "bg-red-800/20 hover:bg-red-800/30"
-                      : "bg-green-400/70 hover:bg-green-400/60"
-                  }  flex justify-center p-4 cursor-pointer`}
-                >
-                  {loadingMic ? (
-                    <Loader className="animate-spin" />
-                  ) : muteAudio ? (
-                    <MicOff />
-                  ) : (
-                    <Mic className=" " />
-                  )}
-                </button>
-                <div className=" flex justify-center items-center">
-                  <ListMenu
-                    activeDeviceId={activeAudioDeviceId}
-                    selectDevice={selectDevice}
-                    kind="audioinput"
-                    mediaDevices={mediaDevices}
+              <video
+                className={`${muteVideo && "hidden"}`}
+                height={600}
+                width={600}
+                ref={videoRef}
+              ></video>
+
+              <span className="absolute flex gap-2 justify-center items-center shadow-2xl shadow-white text-lg px-2 font-bold text-border right-2 bottom-1">
+                You
+                {muteAudio && (
+                  <MicOff
+                    color="red"
+                    className=" right-1 text-border  size-6  bottom-1"
                   />
-                </div>
-              </div>
-              <div
-                className={`flex rounded-4xl   ${
-                  muteVideo ? "bg-red-800/30 " : "bg-green-400/50 "
-                } `}
-              >
-                <button
-                  disabled={loadingCamera}
-                  onClick={() => {
-                    toggleVideo();
-                  }}
-                  className={`rounded-full  ${
-                    muteVideo
-                      ? "bg-red-800/20 hover:bg-red-800/30"
-                      : "bg-green-400/70 hover:bg-green-400/60"
-                  }  flex justify-center p-4 cursor-pointer`}
-                >
-                  {loadingCamera ? (
-                    <Loader className="animate-spin" />
-                  ) : muteVideo ? (
-                    <VideoOff />
-                  ) : (
-                    <Video />
-                  )}
-                </button>
-                <div className=" flex justify-center items-center">
-                  <ListMenu
-                    activeDeviceId={activeVideoDeviceId}
-                    selectDevice={selectDevice}
-                    kind="videoinput"
-                    mediaDevices={mediaDevices}
-                  />
-                </div>
-              </div>
+                )}
+              </span>
             </div>
-            <div className="flex flex-col bg-black/10 p-2 gap-4 w-full">
-              <input
-                className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-3"
-                onChange={(e) => {
-                  setName(e.target.value);
-                  localStorage.setItem("name", e.target.value);
-                }}
-                maxLength={12}
-                value={name}
-                type="text"
-                placeholder="Enter your Name (Optional)"
-              />
-              <button
-                className="bg-blue-700 px-6 cursor-pointer text-white hover:bg-blue-800 duration-150 font-semibold rounded py-2 "
-                onClick={() => {
-                  setJoined(true);
-                }}
-              >
-                Join
-              </button>
+            <div className=" bg-[#1D1D1D] rounded z-20 p-1 gap-2 flex flex-col justify-between ">
+              <div className=" h-full flex flex-col items-center justify-evenly">
+                <div
+                  className={`flex rounded-4xl   ${
+                    muteAudio ? "bg-red-800/30 " : "bg-green-400/50 "
+                  } `}
+                >
+                  <button
+                    disabled={loadingMic}
+                    onClick={() => {
+                      toggleAudio();
+                    }}
+                    className={`rounded-full ${
+                      muteAudio
+                        ? "bg-red-800/20 hover:bg-red-800/30"
+                        : "bg-green-400/70 hover:bg-green-400/60"
+                    }  flex justify-center p-4 cursor-pointer`}
+                  >
+                    {loadingMic ? (
+                      <Loader className="animate-spin" />
+                    ) : muteAudio ? (
+                      <MicOff />
+                    ) : (
+                      <Mic className=" " />
+                    )}
+                  </button>
+                  <div className=" flex justify-center items-center">
+                    <ListMenu
+                      activeDeviceId={activeAudioDeviceId}
+                      selectDevice={selectDevice}
+                      kind="audioinput"
+                      mediaDevices={mediaDevices}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`flex rounded-4xl   ${
+                    muteVideo ? "bg-red-800/30 " : "bg-green-400/50 "
+                  } `}
+                >
+                  <button
+                    disabled={loadingCamera}
+                    onClick={() => {
+                      toggleVideo();
+                    }}
+                    className={`rounded-full  ${
+                      muteVideo
+                        ? "bg-red-800/20 hover:bg-red-800/30"
+                        : "bg-green-400/70 hover:bg-green-400/60"
+                    }  flex justify-center p-4 cursor-pointer`}
+                  >
+                    {loadingCamera ? (
+                      <Loader className="animate-spin" />
+                    ) : muteVideo ? (
+                      <VideoOff />
+                    ) : (
+                      <Video />
+                    )}
+                  </button>
+                  <div className=" flex justify-center items-center">
+                    <ListMenu
+                      activeDeviceId={activeVideoDeviceId}
+                      selectDevice={selectDevice}
+                      kind="videoinput"
+                      mediaDevices={mediaDevices}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col bg-black/10 p-2 gap-4 w-full">
+                <input
+                  className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-3"
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    localStorage.setItem("name", e.target.value);
+                  }}
+                  maxLength={12}
+                  value={name}
+                  type="text"
+                  placeholder="Enter your Name (Optional)"
+                />
+                <button
+                  className="bg-blue-700 px-6 cursor-pointer text-white hover:bg-blue-800 duration-150 font-semibold rounded py-2 "
+                  onClick={() => {
+                    setJoined(true);
+                  }}
+                >
+                  Join
+                </button>
+              </div>
             </div>
           </div>
         </div>

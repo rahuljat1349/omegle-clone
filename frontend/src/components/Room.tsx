@@ -12,6 +12,8 @@ import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import ListMenu from "./Menu";
 import { Ripple } from "./magicui/ripple";
+import { ComicText } from "./magicui/comic-text";
+import { GridPattern } from "./magicui/grid-pattern";
 
 const Room = ({
   mediaDevices,
@@ -261,7 +263,13 @@ const Room = ({
 
   return (
     <div className="container ">
-      <div className="flex justify-center w-full h-full  ">
+      <GridPattern strokeWidth={0.3} />
+      <div className="absolute top-2 left-2  ">
+        <ComicText fontSize={3} className="shadow-2xl">
+          vibes
+        </ComicText>
+      </div>
+      <div className="flex justify-center w-full z-20 h-full  ">
         <div className="min-h-[600px] relative bg-black min-w-[800px] rounded overflow-hidden flex justify-center items-center">
           {hangup ? (
             "call ended."
@@ -296,8 +304,8 @@ const Room = ({
           )}
         </div>
 
-        <div className="  flex justify-between flex-col gap-2 px-2">
-          <div className="flex flex-col bg-black/20 rounded items-center justify-around  h-full px-2">
+        <div className="flex justify-between flex-col z-20 gap-2 px-2">
+          <div className="flex flex-col bg-[#1D1D1D] rounded items-center justify-around  h-full px-2">
             <div
               className={`flex rounded-4xl   ${
                 muteAudio ? "bg-red-800/30 " : "bg-green-400/50 "
@@ -430,7 +438,7 @@ const Room = ({
             <span className="absolute flex justify-center items-center gap-1 shadow-2xl shadow-white  px-2 font-semibold text-border right-1 bottom-0">
               You
               {muteAudio && (
-                <MicOff color="white" className="  text-border  size-4  " />
+                <MicOff color="red" className="  text-border  size-4  " />
               )}
             </span>
           </div>
