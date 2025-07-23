@@ -109,8 +109,9 @@ const Room = ({
       setReceivingPc(pc);
 
       const remoteStream = new MediaStream();
-      if (remoteVideoRef.current){
-        remoteVideoRef.current.srcObject = remoteStream;}
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStream;
+      }
 
       pc.ontrack = (e) => {
         console.log("ontrack..");
@@ -210,9 +211,7 @@ const Room = ({
     setsocket(socket);
 
     return () => {
-      socket.close();
-      receivingPc?.close()
-      sendingPc?.close()
+      handleHangup();
     };
   }, [connectTrigger]);
 
@@ -239,14 +238,14 @@ const Room = ({
       if (audioSender && localAudioTrack) {
         audioSender.replaceTrack(localAudioTrack);
       } else {
-          if (localAudioTrack) {
+        if (localAudioTrack) {
           sendingPc.addTrack(localAudioTrack);
         }
       }
       if (videoSender && localVideoTrack) {
         videoSender.replaceTrack(localVideoTrack);
       } else {
-         if (localVideoTrack) {
+        if (localVideoTrack) {
           sendingPc.addTrack(localVideoTrack);
         }
       }
@@ -255,14 +254,33 @@ const Room = ({
   }, [localAudioTrack, localVideoTrack, sendingPc]);
 
   const handleHangup = async () => {
-    sendingPc?.close();
-    receivingPc?.close();
+    // Stop peer connection and clear handlers
+    if (sendingPc) {
+      sendingPc.onicecandidate = null;
+      sendingPc.ontrack = null;
+      sendingPc.onnegotiationneeded = null;
+      sendingPc.close();
+      setSendingPc(null);
+    }
 
+    if (receivingPc) {
+      receivingPc.onicecandidate = null;
+      receivingPc.ontrack = null;
+      receivingPc.close();
+      setReceivingPc(null);
+    }
+
+    
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null;
     }
-    socket?.close();
+
+    
+    socket?.off(); 
+    socket?.disconnect();
+    setsocket(null);
   };
+  
 
   return (
     <div className="container ">
