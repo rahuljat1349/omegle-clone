@@ -4,6 +4,7 @@ import { RoomManager } from "./roomManager";
 export interface User {
   name: string;
   socket: Socket;
+ 
 }
 
 export class UserManager {
@@ -27,6 +28,9 @@ export class UserManager {
     this.users = this.users.filter((x) => x.socket.id !== socketId);
     this.queue = this.queue.filter((x) => x !== socketId);
     console.log("a user disconnected");
+    this.roomManager.onRefresh(socketId)
+    
+    
   }
   clearQueue() {
     if (this.queue.length < 2) {

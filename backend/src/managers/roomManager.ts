@@ -82,9 +82,37 @@ export class RoomManager {
     }
     const receivingUser =
       room?.user1.socket.id === senderSocketId ? room.user2 : room?.user1;
-      receivingUser.socket.emit("hangup",{})
+    receivingUser.socket.emit("hangup", {});
+
+    this.rooms.delete(roomId)
   }
 
+  onRefresh(socketId: string) {
+    const roomId = this.getRoomIdBySocket(socketId);
+
+    if (!roomId) return;
+    const room = this.rooms.get(roomId);
+
+    if (!room) {
+      return;
+    }
+    const receivingUser =
+      room?.user1.socket.id === socketId ? room.user2 : room?.user1;
+    receivingUser.socket.emit("hangup", {});
+    this.rooms.delete(roomId);
+
+  }
+  getRoomIdBySocket(socketId: string): string | null {
+    for (const [roomId, room] of this.rooms.entries()) {
+      if (
+        room.user1.socket.id === socketId ||
+        room.user2.socket.id === socketId
+      ) {
+        return roomId;
+      }
+    }
+    return null;
+  }
   generate() {
     return GLOBAL_ROOM_ID++;
   }

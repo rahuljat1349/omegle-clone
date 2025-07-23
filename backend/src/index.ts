@@ -7,11 +7,13 @@ const server = http.createServer(app);
 
 import { Server } from "socket.io";
 import { UserManager } from "./managers/userManager";
+import { RoomManager } from "./managers/roomManager";
 
-app.use(cors({
-  origin:"*"
-
-}))
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -25,8 +27,11 @@ const userManager = new UserManager();
 
 io.on("connection", (socket) => {
   console.log("a user connected.");
-  userManager.addUser("random", socket);
+  userManager.addUser("user", socket);
   socket.on("disconnect", () => {
+    console.log("hung up");
+    
+   
     userManager.removeUser(socket.id);
   });
 });

@@ -202,7 +202,11 @@ const Room = ({
     socket.on("hangup", ({}) => {
       handleHangup();
       setHangup(true);
+      console.log("hung up!");
+      
     });
+
+    
 
     setsocket(socket);
 
@@ -311,7 +315,7 @@ const Room = ({
                     roomId: currentRoomId,
                   });
                 }}
-                className={`rounded-full ${
+                className={`rounded-full duration-100 ${
                   muteAudio
                     ? "bg-red-800/20 hover:bg-red-800/30"
                     : "bg-green-400/70 hover:bg-green-400/60"
@@ -351,7 +355,7 @@ const Room = ({
                     roomId: currentRoomId,
                   });
                 }}
-                className={`rounded-full  ${
+                className={`rounded-full duration-100 ${
                   muteVideo
                     ? "bg-red-800/20 hover:bg-red-800/30"
                     : "bg-green-400/70 hover:bg-green-400/60"
@@ -385,7 +389,7 @@ const Room = ({
                 setConnectTrigger(!connectTrigger);
               }}
               disabled={lobby && !hangup}
-              className="rounded-full disabled:bg-white/10 disabled:cursor-not-allowed hover:bg-white/10 disabled:text-white/20 flex justify-center p-4 cursor-pointer"
+              className="rounded-full disabled:bg-white/10 disabled:cursor-not-allowed bg-white/20 duration-100 hover:bg-white/10 disabled:text-white/20 flex justify-center p-4 cursor-pointer"
             >
               <Repeat2 />
             </button>
@@ -400,9 +404,10 @@ const Room = ({
                 }
               }}
               className={`rounded-full  ${
-                !hangup &&
-                "bg-red-800 disabled:cursor-not-allowed  hover:bg-red-800/80"
-              } flex justify-center p-4 hover:bg-white/10 cursor-pointer`}
+                !hangup
+                  ? "bg-red-800 disabled:cursor-not-allowed  hover:bg-red-800/80"
+                  : "hover:bg-white/10 bg-white/20"
+              } flex justify-center p-4  duration-100 cursor-pointer`}
             >
               {hangup ? <ArrowLeft /> : <Phone className="rotate-[135deg] " />}
             </button>
