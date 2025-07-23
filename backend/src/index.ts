@@ -42,4 +42,4 @@ const pingServer = async () => {
 };
 
 // Set up ping interval (10 minutes = 600000 milliseconds)
-setInterval(pingServer, 100000);
+setInterval(pingServer, 600000);
