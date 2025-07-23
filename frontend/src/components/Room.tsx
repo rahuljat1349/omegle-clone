@@ -44,7 +44,7 @@ const Room = ({
   activeVideoDeviceId: string;
   activeAudioDeviceId: string;
 }) => {
-  const URL = "http://localhost:8000";
+  const URL = import.meta.env.VITE_SELF_URL;
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const [peerName, setPeerName] = useState<string>("");

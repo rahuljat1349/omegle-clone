@@ -44,7 +44,6 @@ export class UserManager {
     if (!user1 || !user2) {
       return;
     }
-    console.log("creating room..");
 
     const room = this.roomManager.createRoom(user1, user2);
   }
@@ -62,13 +61,11 @@ export class UserManager {
         name: string;
       }) => {
         this.roomManager.onOffer(roomId, sdp, socket.id, name);
-        console.log("offer received from", name);
       }
     );
 
     socket.on("answer", ({ roomId, sdp }: { roomId: string; sdp: string }) => {
       this.roomManager.onAnswer(roomId, sdp, socket.id);
-      console.log("answer received..");
       
     });
 
@@ -84,7 +81,6 @@ export class UserManager {
 
     socket.on("add-ice-candidate", ({ roomId, candidate, type }) => {
       this.roomManager.onIceCandidate(roomId, socket.id, candidate, type);
-      console.log("got ice candidate of", type);
     });
   }
 }
