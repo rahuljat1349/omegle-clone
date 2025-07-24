@@ -11,7 +11,7 @@ export class RoomManager {
     this.rooms = new Map<string, Room>();
   }
 
-  createRoom(user1: User, user2: User) {
+  createPublicRoom(user1: User, user2: User) {
     const roomId = this.generate().toString();
     this.rooms.set(roomId.toString(), { user1, user2 });
 
@@ -20,6 +20,18 @@ export class RoomManager {
     });
     user2.socket.emit("send-offer", {
       roomId,
+    });
+  }
+
+  createPrivateRoom(user1: User, user2: User, privateRoomId: string) {
+   
+    this.rooms.set(privateRoomId, { user1, user2 });
+
+    user1.socket.emit("send-offer", {
+      privateRoomId,
+    });
+    user2.socket.emit("send-offer", {
+      privateRoomId,
     });
   }
 
@@ -84,7 +96,7 @@ export class RoomManager {
       room?.user1.socket.id === senderSocketId ? room.user2 : room?.user1;
     receivingUser.socket.emit("hangup", {});
 
-    this.rooms.delete(roomId)
+    this.rooms.delete(roomId);
   }
 
   onRefresh(socketId: string) {
@@ -100,7 +112,6 @@ export class RoomManager {
       room?.user1.socket.id === socketId ? room.user2 : room?.user1;
     receivingUser.socket.emit("hangup", {});
     this.rooms.delete(roomId);
-
   }
   getRoomIdBySocket(socketId: string): string | null {
     for (const [roomId, room] of this.rooms.entries()) {

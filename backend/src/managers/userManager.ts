@@ -17,22 +17,20 @@ export class UserManager {
     this.roomManager = new RoomManager();
   }
 
-  addUser(name: string, socket: Socket) {
+  addUser(name: string, socket: Socket, privateRoomId: string) {
     this.users.push({ name, socket });
     this.queue.push(socket.id);
     socket.send("lobby");
-    this.clearQueue();
+    this.clearQueue(privateRoomId);
     this.initHandlers(socket);
   }
   removeUser(socketId: string) {
     this.users = this.users.filter((x) => x.socket.id !== socketId);
     this.queue = this.queue.filter((x) => x !== socketId);
     console.log("a user disconnected");
-    this.roomManager.onRefresh(socketId)
-    
-    
+    this.roomManager.onRefresh(socketId);
   }
-  clearQueue() {
+  clearQueue(privateRoomId:string) {
     if (this.queue.length < 2) {
       return;
     }
@@ -45,7 +43,9 @@ export class UserManager {
       return;
     }
 
-    const room = this.roomManager.createRoom(user1, user2);
+    this.roomManager.createPublicRoom(user1, user2);
+
+    
   }
 
   initHandlers(socket: Socket) {
@@ -66,18 +66,15 @@ export class UserManager {
 
     socket.on("answer", ({ roomId, sdp }: { roomId: string; sdp: string }) => {
       this.roomManager.onAnswer(roomId, sdp, socket.id);
-      
     });
 
-    socket.on("mediaStatus", ({roomId, status, type }) => {
+    socket.on("mediaStatus", ({ roomId, status, type }) => {
       this.roomManager.onMediaStatus(roomId, status, type, socket.id);
     });
 
-    socket.on("hangup", ({roomId})=>{
-      this.roomManager.onHangup(roomId,socket.id)
-    })
-
-
+    socket.on("hangup", ({ roomId }) => {
+      this.roomManager.onHangup(roomId, socket.id);
+    });
 
     socket.on("add-ice-candidate", ({ roomId, candidate, type }) => {
       this.roomManager.onIceCandidate(roomId, socket.id, candidate, type);

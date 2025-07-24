@@ -22,7 +22,12 @@ app.get("/ping", (_req, res) => res.send("pong"));
 const userManager = new UserManager();
 
 io.on("connection", (socket) => {
-  userManager.addUser("user", socket);
+  const { privateRoomId, name } = socket.handshake.query as {
+    privateRoomId: string;
+    name: string;
+  };
+
+  userManager.addUser(name, socket, privateRoomId);
   socket.on("disconnect", () => userManager.removeUser(socket.id));
 });
 

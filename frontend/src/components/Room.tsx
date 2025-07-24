@@ -16,6 +16,7 @@ import { ComicText } from "./magicui/comic-text";
 import { GridPattern } from "./magicui/grid-pattern";
 
 const Room = ({
+  privateRoomId,
   mediaDevices,
   name,
   localAudioTrack,
@@ -30,6 +31,7 @@ const Room = ({
   loadingCamera,
   loadingMic,
 }: {
+  privateRoomId: string | null;
   name: string;
   mediaDevices: MediaDeviceInfo[];
   localAudioTrack: MediaStreamTrack | null;
@@ -58,15 +60,26 @@ const Room = ({
   const [peerAudioPaused, setPeerAudioPaused] = useState<boolean>();
   const [connectTrigger, setConnectTrigger] = useState(false);
 
-  const [currentRoomId, setCurrentRoomId] = useState("");
+  const [currentRoomId, setCurrentRoomId] = useState(privateRoomId);
   const [hangup, setHangup] = useState(false);
 
   useEffect(() => {
-    const socket = io(URL);
+      console.log(currentRoomId);
+      
+    const socket = io(URL, {
+      query: {
+        roomId: currentRoomId,
+        name: name,
+      },
+    });
 
     socket.on("send-offer", async ({ roomId }) => {
       const pc = new RTCPeerConnection();
-      setCurrentRoomId(roomId);
+      if (!privateRoomId) {
+        setCurrentRoomId(roomId);
+      } else {
+        setCurrentRoomId(privateRoomId);
+      }
       console.log("Sending offer..");
       setLobby(false);
 
@@ -270,17 +283,14 @@ const Room = ({
       setReceivingPc(null);
     }
 
-    
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null;
     }
 
-    
-    socket?.off(); 
+    socket?.off();
     socket?.disconnect();
     setsocket(null);
   };
-  
 
   return (
     <div className="container ">

@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import Room from "./Room";
 import Dialogue from "./Dialogue";
-import { Loader, Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { Loader, Loader2, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import ListMenu from "./Menu";
 import { GridPattern } from "./magicui/grid-pattern";
 import { ComicText } from "./magicui/comic-text";
 import Switch from "@mui/material/Switch";
 
+import { v4 } from "uuid";
+
 function Landing() {
   const [name, setName] = useState("");
-  const [enteredRoomId, setEnteredRoomId] = useState("");
+  const [privateRoomFoundError, setPrivateRoomFoundError] = useState<
+    string | null
+  >(null);
+  const [privateRoomId, setPrivateRoomId] = useState("");
+  const [joiningPrivateRoom, setJoiningPrivateRoom] = useState(false);
+  const [creatingPrivateRoom, setCreatingPrivateRoom] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [localAudioTrack, setLocalAudioTrack] =
@@ -210,7 +217,36 @@ function Landing() {
       console.log("error selecting device ", error);
     }
   };
+  const findRoomWithId = async (roomId: string) => {
+    return false;
+  };
+  const joinPrivateRoom = async () => {
+    try {
+      setJoiningPrivateRoom(true);
+      const foundRoom: boolean = await findRoomWithId(privateRoomId);
 
+      if (!foundRoom) {
+        setPrivateRoomFoundError("Room not found!");
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setJoiningPrivateRoom(false);
+    }
+  };
+  const createRoom = async () => {
+    try {
+      setCreatingPrivateRoom(true);
+      const id = await v4();
+      setPrivateRoomId(id);
+      setJoined(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCreatingPrivateRoom(false);
+    }
+  };
   useEffect(() => {
     if (videoRef && videoRef.current) {
       getCam();
@@ -339,17 +375,25 @@ function Landing() {
               </div>
               <div className="flex flex-col bg-black/10 p-2 gap-2 w-full">
                 {privateRoom && (
-                  <input
-                    className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-2"
-                    onChange={(e) => {
-                      setEnteredRoomId(e.target.value);
-                    }}
-                    value={enteredRoomId}
-                    type="text"
-                    required
-                    placeholder="Enter Room Id"
-                  />
+                  <div>
+                    <input
+                      className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-2"
+                      onChange={(e) => {
+                        setPrivateRoomId(e.target.value);
+                      }}
+                      value={privateRoomId}
+                      type="text"
+                      required
+                      placeholder={"Enter Room Id"}
+                    />
+                    {privateRoomFoundError && (
+                      <p className="text-red-400 text-xs">
+                        {privateRoomFoundError}
+                      </p>
+                    )}
+                  </div>
                 )}
+
                 <input
                   className="w-full min-w-56 border-gray-700 border outline-none rounded px-2 py-2"
                   onChange={(e) => {
@@ -364,16 +408,37 @@ function Landing() {
                 <button
                   className="bg-blue-700 px-6 cursor-pointer text-white hover:bg-blue-800 duration-150 font-semibold rounded py-2 "
                   onClick={() => {
-                    setJoined(true);
+                    if (privateRoom) {
+                      joinPrivateRoom();
+                    } else {
+                      setJoined(true);
+                    }
                   }}
                 >
-                  Join
+                  {privateRoom ? (
+                    creatingPrivateRoom ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      "Join"
+                    )
+                  ) : (
+                    "Join"
+                  )}
                 </button>
                 {privateRoom && (
                   <div className="flex flex-col gap-2">
                     <span>Or</span>
-                    <button className="bg-yellow-700 px-6 cursor-pointer text-white hover:bg-yellow-800 duration-150 font-semibold rounded py-2 ">
-                      Create a Room
+                    <button
+                      onClick={async () => {
+                        await createRoom();
+                      }}
+                      className="bg-yellow-700 px-6 cursor-pointer text-white hover:bg-yellow-800 duration-150 font-semibold rounded py-2 "
+                    >
+                      {creatingPrivateRoom ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Create a Room"
+                      )}
                     </button>
                   </div>
                 )}
@@ -387,6 +452,7 @@ function Landing() {
 
   return (
     <Room
+      privateRoomId={privateRoomId}
       loadingCamera={loadingCamera}
       loadingMic={loadingMic}
       activeAudioDeviceId={activeAudioDeviceId}
